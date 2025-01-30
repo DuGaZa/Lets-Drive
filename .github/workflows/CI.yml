@@ -5,8 +5,7 @@ on:
     branches:
       - "**"
   pull_request:
-    branches:
-      - "**"
+  merge_group:
 
 jobs:
   build:
@@ -57,14 +56,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Cache Gradle Build Cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.gradle/build-cache
-          key: ${{ runner.os }}-gradle-build-cache
-          restore-keys: |
-            ${{ runner.os }}-gradle-build-cache
-
       - name: Wait for MySQL to be ready
         run: |
           for i in {1..30}; do
@@ -75,6 +66,9 @@ jobs:
           echo "MySQL did not start in time" && exit 1
 
       # flyway 도입 ?
+      - name: Conditional Clean
+        if: contains(github.event.head_commit.message, 'force clean')
+        run: ./gradlew clean
 
       - name: Run ktlint
         run: ./gradlew ktlintCheck

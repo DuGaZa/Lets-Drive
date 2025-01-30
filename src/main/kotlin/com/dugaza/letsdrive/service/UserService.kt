@@ -3,7 +3,7 @@ package com.dugaza.letsdrive.service
 import com.dugaza.letsdrive.entity.user.User
 import com.dugaza.letsdrive.exception.BusinessException
 import com.dugaza.letsdrive.exception.ErrorCode
-import com.dugaza.letsdrive.repository.UserRepository
+import com.dugaza.letsdrive.repository.user.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID

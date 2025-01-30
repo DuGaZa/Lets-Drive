@@ -1,4 +1,4 @@
-package com.dugaza.letsdrive.repository
+package com.dugaza.letsdrive.repository.file
 
 import com.dugaza.letsdrive.entity.file.FileDetail
 import org.springframework.data.jpa.repository.JpaRepository
