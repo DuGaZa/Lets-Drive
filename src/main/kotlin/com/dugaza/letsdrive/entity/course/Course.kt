@@ -2,10 +2,15 @@ package com.dugaza.letsdrive.entity.course
 
 import com.dugaza.letsdrive.entity.base.BaseEntity
 import com.dugaza.letsdrive.entity.user.User
-import jakarta.persistence.*
+import jakarta.persistence.Entity
+import jakarta.persistence.Table
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.FetchType
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.Column
 
 @Entity
-@Table(name = "Course")
+@Table(name = "course")
 class Course(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
