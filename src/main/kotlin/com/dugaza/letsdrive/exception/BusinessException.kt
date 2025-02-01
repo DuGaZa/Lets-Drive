@@ -1,5 +1,8 @@
 package com.dugaza.letsdrive.exception
 
+import com.dugaza.letsdrive.converter.MessageConverter
+
 class BusinessException(
     val errorCode: ErrorCode,
-) : RuntimeException()
+    messageConverter: MessageConverter = MessageConverter(),
+) : RuntimeException(messageConverter.getMessage(errorCode.code))
