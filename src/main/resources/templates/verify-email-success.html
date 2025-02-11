@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <title>이메일 인증 완료</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Apple SD Gothic Neo", Arial, sans-serif;
+      background: linear-gradient(135deg, #E0F7FA, #FFE0B2);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-sizing: border-box;
+    }
+
+    .verify-success-container {
+      background: #fff;
+      border-radius: 10px;
+      width: 320px;
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      box-sizing: border-box;
+    }
+
+    .verify-success-container h1 {
+      margin-top: 0;
+      margin-bottom: 16px;
+      font-size: 1.5em;
+      color: #333;
+    }
+
+    .verify-success-container p {
+      color: #666;
+      font-size: 0.95em;
+      margin-bottom: 24px;
+      line-height: 1.4;
+    }
+
+    .success-message {
+      background: #e0f2f1;
+      color: #00796b;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="verify-success-container">
+  <h1>이메일 인증 완료</h1>
+  <div class="success-message">
+    <p th:utext="${'안녕하세요, ' + nickname + '님!<br/>이메일 인증이 완료되었습니다.'}"></p>
+  </div>
+</div>
+
+</body>
+</html>

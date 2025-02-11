@@ -2,6 +2,7 @@ package com.dugaza.letsdrive.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration
+import java.util.UUID
 
 @Configuration
 @ConfigurationProperties(prefix = "file")
@@ -11,6 +12,7 @@ class FileProperties {
     var uncompressedExtensions: String = "bmp"
     var allowedExtensions: String = "mp4"
     var uploadRoot: String = "uploads"
+    var defaultImageDetailId: UUID = UUID.fromString("2a20d335-09fd-4ec3-900a-938bcb5c267b")
 
     fun imageExtensionSet(): Set<String> = imageExtensions.split(",").map { it.trim().lowercase() }.toSet()
 

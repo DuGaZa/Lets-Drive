@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>이메일 인증</title>
+    <!--
+      일부 이메일 클라이언트가 <style>을 무시하거나 부분적으로만 적용할 수 있으므로
+      최대한 inline 스타일을 사용하거나 간단한 <style>만 사용합니다.
+    -->
+</head>
+<body style="margin:0; padding:0; background: #E0F7FA;">
+<!-- 메인 컨테이너: 전체를 감싸는 테이블 -->
+<table width="100%" border="0" cellspacing="0" cellpadding="0"
+       style="background: #E0F7FA; min-width: 100%; padding: 20px 0;">
+    <tr>
+        <td align="center">
+            <!-- 내부 컨테이너(600px) -->
+            <table width="600" border="0" cellspacing="0" cellpadding="0"
+                   style="background: #FFFFFF; border-radius: 10px;
+                          box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 24px;
+                          font-family: Arial, sans-serif;">
+                <tr>
+                    <td align="center" style="padding: 0 24px;">
+                        <h1 style="margin-top: 0; margin-bottom: 16px;
+                                   font-size: 24px; color: #333;">
+                            이메일 인증
+                        </h1>
+                        <p style="color: #666; font-size: 14px; margin-bottom: 24px; line-height: 1.5;">
+                            안녕하세요, <strong th:text="${nickname}"/>님!<br/>
+                            아래 버튼을 클릭하여 이메일 인증을 완료해 주세요. <br/>
+                            이 링크는 5분 후 만료됩니다.
+                        </p>
+
+                        <!-- 인증 버튼 -->
+                        <a th:href="${verifyLink}"
+                           style="display: inline-block; background: #66BB6A;
+                                  color: #ffffff; text-decoration: none;
+                                  padding: 14px 28px; border-radius: 6px;
+                                  font-size: 14px; margin-bottom: 24px;">
+                            이메일 인증하기
+                        </a>
+
+                        <p style="color: #999; font-size: 12px; line-height: 1.4; margin-top: 24px;">
+                            본인이 가입을 요청한 적이 없다면, <br/>
+                            이 이메일을 무시하셔도 됩니다.
+                        </p>
+                    </td>
+                </tr>
+            </table>
+            <!-- // 내부 컨테이너 끝 -->
+        </td>
+    </tr>
+</table>
+<!-- // 메인 컨테이너 끝 -->
+</body>
+</html>

@@ -1,6 +1,7 @@
 package com.dugaza.letsdrive.entity.user
 
 enum class Role {
-    ROLE_USER,
-    ROLE_ADMIN,
+    USER,
+    UNVERIFIED_USER,
+    ADMIN,
 }
