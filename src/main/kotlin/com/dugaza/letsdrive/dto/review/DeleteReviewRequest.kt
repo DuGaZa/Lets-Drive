@@ -1,11 +1,11 @@
 package com.dugaza.letsdrive.dto.review
 
-import jakarta.validation.constraints.NotBlank
+import com.dugaza.letsdrive.validator.CustomValidator
 import java.util.*
 
 class DeleteReviewRequest(
-    @field:NotBlank(message = "reviewId는 필수 입력값입니다.")
+    @field:CustomValidator.NotBlank(message = "reviewId는 필수 입력값입니다.")
     val reviewId: UUID,
-    @field:NotBlank(message = "userId는 필수 입력값입니다.")
+    @field:CustomValidator.NotBlank(message = "userId는 필수 입력값입니다.")
     val userId: UUID,
 )

@@ -2,11 +2,11 @@ package com.dugaza.letsdrive.dto.review
 
 import com.dugaza.letsdrive.service.TargetType
 import com.dugaza.letsdrive.validator.ValidEnum
-import jakarta.validation.constraints.NotBlank
+import com.dugaza.letsdrive.validator.CustomValidator
 import java.util.*
 
 class GetReviewListRequest(
-    @field:NotBlank(message = "targetId는 필수 입력값입니다.")
+    @field:CustomValidator.NotBlank(message = "targetId는 필수 입력값입니다.")
     val targetId: UUID,
     @field:ValidEnum(
         enumClass = TargetType::class,
