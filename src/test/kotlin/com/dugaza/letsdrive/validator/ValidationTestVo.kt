@@ -1,12 +1,18 @@
 package com.dugaza.letsdrive.validator
 
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
-import java.util.UUID
+import com.dugaza.letsdrive.exception.ErrorCode
 
 class ValidationTestVo(
-    @field:NotNull(message = "{FILE_001}")
-    val id: UUID,
-    @field:NotBlank(message = "{FILE_002}")
-    val title: String,
+    @field:CustomValidator.NotNull(ErrorCode.DEFAULT_NOT_NULL_MESSAGE)
+    private val notNull: String?,
+    @field:CustomValidator.NotBlank(ErrorCode.DEFAULT_NOT_BLANK_MESSAGE)
+    private val notBlank: String,
+    @field:CustomValidator.Size(1, 10, ErrorCode.DEFAULT_SIZE_MESSAGE)
+    private val size: String,
+    @field:CustomValidator.Min(10, ErrorCode.DEFAULT_MIN_MESSAGE)
+    private val min: Int,
+    @field:CustomValidator.Max(255, ErrorCode.DEFAULT_MAX_MESSAGE)
+    private val max: Int,
+    @field:CustomValidator.Range(1, 10, ErrorCode.DEFAULT_RANGE_MESSAGE)
+    private val range: Int,
 )
