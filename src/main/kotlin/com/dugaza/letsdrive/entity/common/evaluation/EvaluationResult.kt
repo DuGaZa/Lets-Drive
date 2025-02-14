@@ -18,9 +18,9 @@ class EvaluationResult(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "answer_id", nullable = false)
-    val answer: EvaluationAnswer,
+    var answer: EvaluationAnswer,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     val user: User,
-    ) : BaseEntity()
+) : BaseEntity()
