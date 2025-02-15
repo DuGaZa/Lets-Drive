@@ -1,6 +1,10 @@
 package com.dugaza.letsdrive.controller
 
-import com.dugaza.letsdrive.dto.review.*
+import com.dugaza.letsdrive.dto.review.DeleteReviewRequest
+import com.dugaza.letsdrive.dto.review.GetReviewListRequest
+import com.dugaza.letsdrive.dto.review.ModifyReviewRequest
+import com.dugaza.letsdrive.dto.review.ReviewCreateRequest
+import com.dugaza.letsdrive.dto.review.ReviewResponse
 import com.dugaza.letsdrive.service.EvaluationService
 import com.dugaza.letsdrive.service.ReviewService
 import jakarta.validation.Valid
@@ -25,16 +29,17 @@ class ReviewController(
         @RequestBody @Valid request: ReviewCreateRequest,
     ): ResponseEntity<ReviewResponse> {
         val createdReview = reviewService.createReview(request)
-        val resultList = evaluationService.getEvaluationResultListByReviewId(
-            userId = request.userId,
-            reviewId = createdReview.id!!
-        )
+        val resultList =
+            evaluationService.getEvaluationResultListByReviewId(
+                userId = request.userId,
+                reviewId = createdReview.id!!,
+            )
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(
                 ReviewResponse.of(
                     review = createdReview,
-                    evaluationResultList = resultList
-                )
+                    evaluationResultList = resultList,
+                ),
             )
     }
 
@@ -44,12 +49,13 @@ class ReviewController(
     ): ResponseEntity<List<ReviewResponse>> {
         return ResponseEntity.ok(
             reviewService.getReviewList(request).map {
-                val resultList = evaluationService.getEvaluationResultListByReviewId(
-                    userId = it.user.id!!,
-                    reviewId = it.id!!,
-                )
+                val resultList =
+                    evaluationService.getEvaluationResultListByReviewId(
+                        userId = it.user.id!!,
+                        reviewId = it.id!!,
+                    )
                 ReviewResponse.of(it, resultList)
-            }
+            },
         )
     }
 
@@ -58,15 +64,16 @@ class ReviewController(
         @RequestBody @Valid request: ModifyReviewRequest,
     ): ResponseEntity<ReviewResponse> {
         val modifiedReview = reviewService.modifyReview(request)
-        val resultList = evaluationService.getEvaluationResultListByReviewId(
-            userId = request.userId,
-            reviewId = modifiedReview.id!!,
-        )
+        val resultList =
+            evaluationService.getEvaluationResultListByReviewId(
+                userId = request.userId,
+                reviewId = modifiedReview.id!!,
+            )
         return ResponseEntity.ok(
             ReviewResponse.of(
                 review = modifiedReview,
                 evaluationResultList = resultList,
-            )
+            ),
         )
     }
 
@@ -76,7 +83,7 @@ class ReviewController(
     ): ResponseEntity<Unit> {
         reviewService.deleteReview(
             userId = request.userId,
-            reviewId = request.reviewId
+            reviewId = request.reviewId,
         )
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()

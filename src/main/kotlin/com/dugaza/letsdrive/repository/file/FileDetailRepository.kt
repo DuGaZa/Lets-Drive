@@ -8,7 +8,4 @@ interface FileDetailRepository : JpaRepository<FileDetail, UUID> {
     fun findByFileMasterId(fileMasterId: UUID): List<FileDetail>
 
     fun findByFileHash(fileHash: String): FileDetail?
-
-
-    fun existsByFileMaster_Id(id: UUID): Boolean
 }

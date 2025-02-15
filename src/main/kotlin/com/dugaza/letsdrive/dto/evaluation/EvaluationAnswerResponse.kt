@@ -8,9 +8,7 @@ class EvaluationAnswerResponse(
     val answer: String,
 ) {
     companion object {
-        fun of(
-            evaluationAnswer: EvaluationAnswer,
-        ): EvaluationAnswerResponse {
+        fun of(evaluationAnswer: EvaluationAnswer): EvaluationAnswerResponse {
             return EvaluationAnswerResponse(
                 id = evaluationAnswer.id!!,
                 answer = evaluationAnswer.answer,

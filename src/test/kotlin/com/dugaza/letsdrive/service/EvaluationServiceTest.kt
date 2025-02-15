@@ -18,7 +18,8 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertDoesNotThrow
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -71,41 +72,46 @@ class EvaluationServiceTest {
         userProviderId = UUID.randomUUID().toString()
         reviewId = UUID.randomUUID()
 
-        mockEvaluation = mockk<Evaluation> {
-            every { id } returns evaluationId
-            every { type } returns evaluationType
-        }
+        mockEvaluation =
+            mockk<Evaluation> {
+                every { id } returns evaluationId
+                every { type } returns evaluationType
+            }
 
-        mockEvaluationQuestion = mockk<EvaluationQuestion> {
-            every { id } returns evaluationQuestionId
-            every { evaluation } returns mockEvaluation
-            every { question } returns evaluationQuestionContent
-        }
+        mockEvaluationQuestion =
+            mockk<EvaluationQuestion> {
+                every { id } returns evaluationQuestionId
+                every { evaluation } returns mockEvaluation
+                every { question } returns evaluationQuestionContent
+            }
 
-        mockEvaluationAnswer = mockk<EvaluationAnswer> {
-            every { id } returns evaluationAnswerId
-            every { question } returns mockEvaluationQuestion
-            every { answer } returns evaluationAnswerContent
-        }
+        mockEvaluationAnswer =
+            mockk<EvaluationAnswer> {
+                every { id } returns evaluationAnswerId
+                every { question } returns mockEvaluationQuestion
+                every { answer } returns evaluationAnswerContent
+            }
 
-        mockUser = mockk<User> {
-            every { id } returns userId
-            every { email } returns userEmail
-            every { provider } returns AuthProvider.GOOGLE
-            every { providerId } returns userProviderId
-            every { nickname } returns "TEST_USER_NICKNAME"
-            every { phoneNumber } returns "01012341234"
-        }
+        mockUser =
+            mockk<User> {
+                every { id } returns userId
+                every { email } returns userEmail
+                every { provider } returns AuthProvider.GOOGLE
+                every { providerId } returns userProviderId
+                every { nickname } returns "TEST_USER_NICKNAME"
+                every { phoneNumber } returns "01012341234"
+            }
 
-        mockReview = mockk<Review> {
-            every { id } returns reviewId
-            every { targetId } returns UUID.randomUUID()
-            every { user } returns mockUser
-            every { evaluation } returns mockEvaluation
-            every { score } returns 0.5
-            every { content } returns "TEST_REVIEW_CONTENT"
-            every { isDisplayed } returns true
-        }
+        mockReview =
+            mockk<Review> {
+                every { id } returns reviewId
+                every { targetId } returns UUID.randomUUID()
+                every { user } returns mockUser
+                every { evaluation } returns mockEvaluation
+                every { score } returns 0.5
+                every { content } returns "TEST_REVIEW_CONTENT"
+                every { isDisplayed } returns true
+            }
     }
 
     @Nested
@@ -116,16 +122,17 @@ class EvaluationServiceTest {
         fun `checking duplicate evaluation type should throw exception`() {
             // Given
             every {
-                evaluationRepository.existsByType(
-                    type = evaluationType
+                evaluationRepository.exists(
+                    type = evaluationType,
                 )
             } returns true
 
             // When
             // 같은 Evaluation Type이 있을 경우 Exception
-            val exception = assertThrows<BusinessException> {
-                evaluationService.checkDuplicateType(evaluationType)
-            }
+            val exception =
+                assertThrows<BusinessException> {
+                    evaluationService.checkDuplicateType(evaluationType)
+                }
 
             // Then
             assertEquals(ErrorCode.EVALUATION_TYPE_CONFLICT, exception.errorCode)
@@ -135,7 +142,7 @@ class EvaluationServiceTest {
         @DisplayName("중복되지 않은 평가 타입 체크 테스트")
         fun `checking non-duplicate evaluation type should not throw exception`() {
             // Given
-            every { evaluationRepository.existsByType(any()) } returns false
+            every { evaluationRepository.exists(type = any()) } returns false
 
             // When & Then
             assertDoesNotThrow {
@@ -154,18 +161,19 @@ class EvaluationServiceTest {
             every {
                 evaluationAnswerRepository.existsByQuestionAndAnswer(
                     question = mockEvaluationQuestion,
-                    answer = evaluationAnswerContent
+                    answer = evaluationAnswerContent,
                 )
             } returns true
 
             // When
             // 같은 Evaluation Question에 중복된 Answer를 만드려고 할 시 Exception
-            val exception = assertThrows<BusinessException> {
-                evaluationService.checkDuplicateAnswer(
-                    question = mockEvaluationQuestion,
-                    answer = evaluationAnswerContent
-                )
-            }
+            val exception =
+                assertThrows<BusinessException> {
+                    evaluationService.checkDuplicateAnswer(
+                        question = mockEvaluationQuestion,
+                        answer = evaluationAnswerContent,
+                    )
+                }
 
             // Then
             assertEquals(ErrorCode.EVALUATION_ANSWER_CONFLICT, exception.errorCode)
@@ -178,7 +186,7 @@ class EvaluationServiceTest {
             every {
                 evaluationAnswerRepository.existsByQuestionAndAnswer(
                     question = mockEvaluationQuestion,
-                    answer = any()
+                    answer = any(),
                 )
             } returns false
 
@@ -186,7 +194,7 @@ class EvaluationServiceTest {
             assertDoesNotThrow {
                 evaluationService.checkDuplicateAnswer(
                     question = mockEvaluationQuestion,
-                    answer = "NEW_ANSWER"
+                    answer = "NEW_ANSWER",
                 )
             }
         }
@@ -200,20 +208,21 @@ class EvaluationServiceTest {
         fun `checking duplicate evaluation question should throw exception`() {
             // Given
             every {
-                evaluationQuestionRepository.existsByEvaluationAndQuestion(
+                evaluationQuestionRepository.exists(
                     evaluation = mockEvaluation,
-                    question = evaluationQuestionContent
+                    question = evaluationQuestionContent,
                 )
             } returns true
 
             // When
             // 같은 Evaluation에 중복된 Question이 있을 경우 Exception
-            val exception = assertThrows<BusinessException> {
-                evaluationService.checkDuplicateQuestion(
-                    evaluation = mockEvaluation,
-                    question = evaluationQuestionContent
-                )
-            }
+            val exception =
+                assertThrows<BusinessException> {
+                    evaluationService.checkDuplicateQuestion(
+                        evaluation = mockEvaluation,
+                        question = evaluationQuestionContent,
+                    )
+                }
 
             // Then
             assertEquals(ErrorCode.EVALUATION_QUESTION_CONFLICT, exception.errorCode)
@@ -224,7 +233,7 @@ class EvaluationServiceTest {
         fun `checking non-duplicate evaluation question should not throw exception`() {
             // Given
             every {
-                evaluationQuestionRepository.existsByEvaluationAndQuestion(
+                evaluationQuestionRepository.exists(
                     evaluation = mockEvaluation,
                     question = any(),
                 )
@@ -234,7 +243,7 @@ class EvaluationServiceTest {
             assertDoesNotThrow {
                 evaluationService.checkDuplicateQuestion(
                     evaluation = mockEvaluation,
-                    question = "NEW_QUESTION"
+                    question = "NEW_QUESTION",
                 )
             }
         }
@@ -248,21 +257,22 @@ class EvaluationServiceTest {
         fun `should throw BusinessException when selecting duplicate answer for evaluation question`() {
             // Given
             every { // result table에 이미 유저가 question에 대한 답변이 있을 경우
-                evaluationResultRepository.existsByReview_IdAndAnswer_Question_IdAndUser_Id(
-                    reviewId,
-                    evaluationQuestionId,
-                    userId
+                evaluationResultRepository.exists(
+                    reviewId = reviewId,
+                    questionId = evaluationQuestionId,
+                    userId = userId,
                 )
             } returns true
 
             // When
-            val exception = assertThrows<BusinessException> {
-                evaluationService.checkDuplicateResultAnswer(
-                    review = mockReview,
-                    user = mockUser,
-                    answer = mockEvaluationAnswer
-                )
-            }
+            val exception =
+                assertThrows<BusinessException> {
+                    evaluationService.checkDuplicateResultAnswer(
+                        review = mockReview,
+                        user = mockUser,
+                        answer = mockEvaluationAnswer,
+                    )
+                }
 
             // Then
             assertEquals(ErrorCode.EVALUATION_RESULT_ANSWER_CONFLICT, exception.errorCode)
@@ -273,10 +283,10 @@ class EvaluationServiceTest {
         fun `should not throw exception when checking non-duplicate answer for evaluation question`() {
             // Given
             every {
-                evaluationResultRepository.existsByReview_IdAndAnswer_Question_IdAndUser_Id(
-                    reviewId,
-                    evaluationQuestionId,
-                    userId
+                evaluationResultRepository.exists(
+                    reviewId = reviewId,
+                    questionId = evaluationQuestionId,
+                    userId = userId,
                 )
             } returns false
 
@@ -285,7 +295,7 @@ class EvaluationServiceTest {
                 evaluationService.checkDuplicateResultAnswer(
                     review = mockReview,
                     user = mockUser,
-                    answer = mockEvaluationAnswer
+                    answer = mockEvaluationAnswer,
                 )
             }
         }
@@ -300,7 +310,7 @@ class EvaluationServiceTest {
             // Given
             every {
                 evaluationQuestionRepository.findById(
-                    evaluationQuestionId
+                    evaluationQuestionId,
                 )
             } returns Optional.of(mockEvaluationQuestion)
 
@@ -321,9 +331,10 @@ class EvaluationServiceTest {
             } returns Optional.empty()
 
             // When
-            val exception = assertThrows<BusinessException> {
-                evaluationService.getEvaluationQuestionById(invalidUUID)
-            }
+            val exception =
+                assertThrows<BusinessException> {
+                    evaluationService.getEvaluationQuestionById(invalidUUID)
+                }
 
             // Then
             assertEquals(ErrorCode.EVALUATION_QUESTION_NOT_FOUND, exception.errorCode)
@@ -338,10 +349,10 @@ class EvaluationServiceTest {
         fun `find evaluation by valid type should return evaluation`() {
             // Given
             every {
-                evaluationRepository.findByType(
-                    evaluationType
+                evaluationRepository.find(
+                    type = evaluationType,
                 )
-            } returns Optional.of(mockEvaluation)
+            } returns mockEvaluation
 
             // When
             val result = evaluationService.getEvaluationByType(evaluationType)
@@ -356,13 +367,16 @@ class EvaluationServiceTest {
             // Given
             val invalidType = "INVALID_TYPE"
             every {
-                evaluationRepository.findByType(invalidType)
-            } returns Optional.empty()
+                evaluationRepository.find(
+                    type = invalidType,
+                )
+            } returns null
 
             // When
-            val exception = assertThrows<BusinessException> {
-                evaluationService.getEvaluationByType(invalidType)
-            }
+            val exception =
+                assertThrows<BusinessException> {
+                    evaluationService.getEvaluationByType(invalidType)
+                }
 
             // Then
             assertEquals(ErrorCode.EVALUATION_NOT_FOUND, exception.errorCode)
@@ -397,9 +411,10 @@ class EvaluationServiceTest {
             } returns Optional.empty()
 
             // When
-            val exception = assertThrows<BusinessException> {
-                evaluationService.getEvaluationById(invalidUUID)
-            }
+            val exception =
+                assertThrows<BusinessException> {
+                    evaluationService.getEvaluationById(invalidUUID)
+                }
 
             // Then
             assertEquals(ErrorCode.EVALUATION_NOT_FOUND, exception.errorCode)
@@ -418,9 +433,10 @@ class EvaluationServiceTest {
             } returns Optional.of(mockEvaluationAnswer)
 
             // When
-            val result = assertDoesNotThrow<EvaluationAnswer> {
-                evaluationService.getEvaluationAnswerById(evaluationAnswerId)
-            }
+            val result =
+                assertDoesNotThrow<EvaluationAnswer> {
+                    evaluationService.getEvaluationAnswerById(evaluationAnswerId)
+                }
 
             // Then
             assertEquals(evaluationAnswerId, result.id)
@@ -436,9 +452,10 @@ class EvaluationServiceTest {
             } returns Optional.empty()
 
             // When
-            val exception = assertThrows<BusinessException> {
-                evaluationService.getEvaluationAnswerById(invalidUUID)
-            }
+            val exception =
+                assertThrows<BusinessException> {
+                    evaluationService.getEvaluationAnswerById(invalidUUID)
+                }
 
             // Then
             assertEquals(ErrorCode.EVALUATION_ANSWER_NOT_FOUND, exception.errorCode)
@@ -456,37 +473,41 @@ class EvaluationServiceTest {
                 evaluationAnswerRepository.findById(evaluationAnswerId)
             } returns Optional.of(mockEvaluationAnswer)
             every {
-                evaluationResultRepository.existsByReview_IdAndAnswer_Question_IdAndUser_Id(
-                    any(), any(), any()
+                evaluationResultRepository.exists(
+                    reviewId = any(),
+                    questionId = any(),
+                    userId = any(),
                 )
             } returns false
 
             val evaluationId = UUID.randomUUID()
-            val mockEvaluationResult = mockk<EvaluationResult> {
-                every { id } returns evaluationId
-                every { review } returns mockReview
-                every { answer } returns mockEvaluationAnswer
-                every { user } returns mockUser
-            }
+            val mockEvaluationResult =
+                mockk<EvaluationResult> {
+                    every { id } returns evaluationId
+                    every { review } returns mockReview
+                    every { answer } returns mockEvaluationAnswer
+                    every { user } returns mockUser
+                }
 
             every {
                 evaluationResultRepository.save(
                     match {
                         it.review == mockReview &&
-                                it.answer.id == evaluationAnswerId &&
-                                it.user == mockUser
-                    }
+                            it.answer.id == evaluationAnswerId &&
+                            it.user == mockUser
+                    },
                 )
             } returns mockEvaluationResult
 
             // When
-            val result = assertDoesNotThrow<EvaluationResult> {
-                evaluationService.createEvaluationResult(
-                    user = mockUser,
-                    review = mockReview,
-                    answerId = evaluationAnswerId
-                )
-            }
+            val result =
+                assertDoesNotThrow<EvaluationResult> {
+                    evaluationService.createEvaluationResult(
+                        user = mockUser,
+                        review = mockReview,
+                        answerId = evaluationAnswerId,
+                    )
+                }
 
             // Then
             assertEquals(evaluationId, result.id)
@@ -501,19 +522,22 @@ class EvaluationServiceTest {
                 evaluationAnswerRepository.findById(invalidUUID)
             } returns Optional.empty()
             every {
-                evaluationResultRepository.existsByReview_IdAndAnswer_Question_IdAndUser_Id(
-                    any(), any(), any()
+                evaluationResultRepository.exists(
+                    reviewId = any(),
+                    questionId = any(),
+                    userId = any(),
                 )
             } returns false
 
             // When
-            val exception = assertThrows<BusinessException> {
-                evaluationService.createEvaluationResult(
-                    user = mockUser,
-                    review = mockReview,
-                    answerId = invalidUUID
-                )
-            }
+            val exception =
+                assertThrows<BusinessException> {
+                    evaluationService.createEvaluationResult(
+                        user = mockUser,
+                        review = mockReview,
+                        answerId = invalidUUID,
+                    )
+                }
 
             // Then
             assertEquals(ErrorCode.EVALUATION_ANSWER_NOT_FOUND, exception.errorCode)
@@ -527,19 +551,22 @@ class EvaluationServiceTest {
                 evaluationAnswerRepository.findById(evaluationAnswerId)
             } returns Optional.of(mockEvaluationAnswer)
             every {
-                evaluationResultRepository.existsByReview_IdAndAnswer_Question_IdAndUser_Id(
-                    any(), any(), any()
+                evaluationResultRepository.exists(
+                    reviewId = any(),
+                    questionId = any(),
+                    userId = any(),
                 )
             } returns true
 
             // When
-            val exception = assertThrows<BusinessException> {
-                evaluationService.createEvaluationResult(
-                    user = mockUser,
-                    review = mockReview,
-                    answerId = evaluationAnswerId
-                )
-            }
+            val exception =
+                assertThrows<BusinessException> {
+                    evaluationService.createEvaluationResult(
+                        user = mockUser,
+                        review = mockReview,
+                        answerId = evaluationAnswerId,
+                    )
+                }
 
             // Then
             assertEquals(ErrorCode.EVALUATION_RESULT_ANSWER_CONFLICT, exception.errorCode)
@@ -564,12 +591,13 @@ class EvaluationServiceTest {
             } returns true
 
             // When
-            val exception = assertThrows<BusinessException> {
-                evaluationService.createEvaluationAnswer(
-                    questionId = evaluationQuestionId,
-                    answer = invalidAnswer,
-                )
-            }
+            val exception =
+                assertThrows<BusinessException> {
+                    evaluationService.createEvaluationAnswer(
+                        questionId = evaluationQuestionId,
+                        answer = invalidAnswer,
+                    )
+                }
 
             // Then
             assertEquals(ErrorCode.EVALUATION_ANSWER_CONFLICT, exception.errorCode)
@@ -585,12 +613,13 @@ class EvaluationServiceTest {
             } returns Optional.empty()
 
             // When
-            val exception = assertThrows<BusinessException> {
-                evaluationService.createEvaluationAnswer(
-                    questionId = invalidUUID,
-                    answer = "TEST_EVALUATION_ANSWER",
-                )
-            }
+            val exception =
+                assertThrows<BusinessException> {
+                    evaluationService.createEvaluationAnswer(
+                        questionId = invalidUUID,
+                        answer = "TEST_EVALUATION_ANSWER",
+                    )
+                }
 
             // Then
             assertEquals(ErrorCode.EVALUATION_QUESTION_NOT_FOUND, exception.errorCode)
@@ -613,12 +642,13 @@ class EvaluationServiceTest {
             } returns mockEvaluationAnswer
 
             // When
-            val result = assertDoesNotThrow<EvaluationAnswer> {
-                evaluationService.createEvaluationAnswer(
-                    questionId = evaluationQuestionId,
-                    answer = "NEW_EVALUATION_ANSWER",
-                )
-            }
+            val result =
+                assertDoesNotThrow<EvaluationAnswer> {
+                    evaluationService.createEvaluationAnswer(
+                        questionId = evaluationQuestionId,
+                        answer = "NEW_EVALUATION_ANSWER",
+                    )
+                }
 
             // Then
             assertEquals(evaluationAnswerId, result.id)
@@ -638,12 +668,13 @@ class EvaluationServiceTest {
             } returns Optional.empty()
 
             // When
-            val exception = assertThrows<BusinessException> {
-                evaluationService.createEvaluationQuestion(
-                    evaluationId = invalidUUID,
-                    question = "TEST_EVALUATION_QUESTION",
-                )
-            }
+            val exception =
+                assertThrows<BusinessException> {
+                    evaluationService.createEvaluationQuestion(
+                        evaluationId = invalidUUID,
+                        question = "TEST_EVALUATION_QUESTION",
+                    )
+                }
 
             // Then
             assertEquals(ErrorCode.EVALUATION_NOT_FOUND, exception.errorCode)
@@ -659,16 +690,20 @@ class EvaluationServiceTest {
             } returns Optional.of(mockEvaluation)
 
             every {
-                evaluationQuestionRepository.existsByEvaluationAndQuestion(mockEvaluation, duplicateQuestion)
+                evaluationQuestionRepository.exists(
+                    evaluation = mockEvaluation,
+                    question = duplicateQuestion,
+                )
             } returns true
 
             // When
-            val exception = assertThrows<BusinessException> {
-                evaluationService.createEvaluationQuestion(
-                    evaluationId = evaluationId,
-                    question = duplicateQuestion,
-                )
-            }
+            val exception =
+                assertThrows<BusinessException> {
+                    evaluationService.createEvaluationQuestion(
+                        evaluationId = evaluationId,
+                        question = duplicateQuestion,
+                    )
+                }
 
             // Then
             assertEquals(ErrorCode.EVALUATION_QUESTION_CONFLICT, exception.errorCode)
@@ -684,29 +719,34 @@ class EvaluationServiceTest {
             } returns Optional.of(mockEvaluation)
 
             every {
-                evaluationQuestionRepository.existsByEvaluationAndQuestion(mockEvaluation, any())
+                evaluationQuestionRepository.exists(
+                    evaluation = mockEvaluation,
+                    question = any(),
+                )
             } returns false
 
             every {
                 evaluationQuestionRepository.save(
                     match {
                         it.evaluation == mockEvaluation &&
-                                it.question == evaluationQuestion
-                    }
+                            it.question == evaluationQuestion
+                    },
                 )
-            } returns mockk<EvaluationQuestion> {
-                every { id } returns evaluationQuestionId
-                every { evaluation } returns mockEvaluation
-                every { question } returns evaluationQuestion
-            }
+            } returns
+                mockk<EvaluationQuestion> {
+                    every { id } returns evaluationQuestionId
+                    every { evaluation } returns mockEvaluation
+                    every { question } returns evaluationQuestion
+                }
 
             // When
-            val result = assertDoesNotThrow<EvaluationQuestion> {
-                evaluationService.createEvaluationQuestion(
-                    evaluationId = evaluationId,
-                    question = evaluationQuestion,
-                )
-            }
+            val result =
+                assertDoesNotThrow<EvaluationQuestion> {
+                    evaluationService.createEvaluationQuestion(
+                        evaluationId = evaluationId,
+                        question = evaluationQuestion,
+                    )
+                }
 
             // Then
             assertEquals(evaluationQuestion, result.question)
@@ -722,15 +762,18 @@ class EvaluationServiceTest {
             // Given
             val invalidType = "DUP_EVALUATION_TYPE"
             every {
-                evaluationRepository.existsByType(invalidType)
+                evaluationRepository.exists(
+                    type = invalidType,
+                )
             } returns true
 
             // When
-            val exception = assertThrows<BusinessException> {
-                evaluationService.createEvaluation(
-                    evaluationType = invalidType
-                )
-            }
+            val exception =
+                assertThrows<BusinessException> {
+                    evaluationService.createEvaluation(
+                        evaluationType = invalidType,
+                    )
+                }
 
             // Then
             assertEquals(ErrorCode.EVALUATION_TYPE_CONFLICT, exception.errorCode)
@@ -741,23 +784,26 @@ class EvaluationServiceTest {
         fun `should successfully register evaluation with non-duplicate valid type`() {
             // Given
             every {
-                evaluationRepository.existsByType(evaluationType)
+                evaluationRepository.exists(
+                    type = evaluationType,
+                )
             } returns false
 
             every {
                 evaluationRepository.save(
                     match {
                         it.type == evaluationType
-                    }
+                    },
                 )
             } returns mockEvaluation
 
             // When
-            val result = assertDoesNotThrow<Evaluation> {
-                evaluationService.createEvaluation(
-                    evaluationType = evaluationType,
-                )
-            }
+            val result =
+                assertDoesNotThrow<Evaluation> {
+                    evaluationService.createEvaluation(
+                        evaluationType = evaluationType,
+                    )
+                }
 
             // Then
             assertEquals(evaluationType, result.type)
@@ -772,20 +818,21 @@ class EvaluationServiceTest {
         fun `getEvaluationResultByQuestionId should return EvaluationResult when found`() {
             // Given
             every {
-                evaluationResultRepository.findByUser_IdAndReview_IdAndAnswer_Question_Id(
+                evaluationResultRepository.find(
                     userId = userId,
                     reviewId = reviewId,
                     questionId = evaluationQuestionId,
                 )
-            } returns Optional.of(mockk {
-                every { id } returns UUID.randomUUID()
-                every { review } returns mockReview
-                every { answer } returns mockEvaluationAnswer
-                every { user } returns mockUser
-            })
+            } returns
+                mockk {
+                    every { id } returns UUID.randomUUID()
+                    every { review } returns mockReview
+                    every { answer } returns mockEvaluationAnswer
+                    every { user } returns mockUser
+                }
 
             // When & Then
-            val result = assertDoesNotThrow<EvaluationResult> {
+            assertDoesNotThrow<EvaluationResult> {
                 evaluationService.getEvaluationResultByQuestionId(
                     userId = userId,
                     reviewId = reviewId,
@@ -799,21 +846,22 @@ class EvaluationServiceTest {
         fun `getEvaluationResultByQuestionId should throw BusinessException when not found`() {
             // Given
             every {
-                evaluationResultRepository.findByUser_IdAndReview_IdAndAnswer_Question_Id(
+                evaluationResultRepository.find(
                     userId = any(),
                     reviewId = any(),
                     questionId = any(),
                 )
-            } returns Optional.empty()
+            } returns null
 
             // When & Then
-            val exception = assertThrows<BusinessException> {
-                evaluationService.getEvaluationResultByQuestionId(
-                    userId = UUID.randomUUID(),
-                    reviewId = UUID.randomUUID(),
-                    questionId = UUID.randomUUID(),
-                )
-            }
+            val exception =
+                assertThrows<BusinessException> {
+                    evaluationService.getEvaluationResultByQuestionId(
+                        userId = UUID.randomUUID(),
+                        reviewId = UUID.randomUUID(),
+                        questionId = UUID.randomUUID(),
+                    )
+                }
             assertEquals(ErrorCode.EVALUATION_RESULT_NOT_FOUND, exception.errorCode)
         }
     }

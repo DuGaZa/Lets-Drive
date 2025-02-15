@@ -24,7 +24,6 @@ class EvaluationService(
     private val evaluationAnswerRepository: EvaluationAnswerRepository,
     private val evaluationQuestionRepository: EvaluationQuestionRepository,
 ) {
-
     /**
      * 새로운 평가 항목을 등록합니다.
      *
@@ -45,13 +44,11 @@ class EvaluationService(
      * - 이 함수는 @Transactional 어노테이션이 적용되어 있어, 모든 데이터베이스 작업이 하나의 트랜잭션 내에서 실행됩니다.
      */
     @Transactional
-    fun createEvaluation(
-        evaluationType: String
-    ): Evaluation {
+    fun createEvaluation(evaluationType: String): Evaluation {
         checkDuplicateType(evaluationType)
 
         return evaluationRepository.save(
-            Evaluation(evaluationType)
+            Evaluation(evaluationType),
         )
     }
 
@@ -83,7 +80,7 @@ class EvaluationService(
     @Transactional
     fun createEvaluationQuestion(
         evaluationId: UUID,
-        question: String
+        question: String,
     ): EvaluationQuestion {
         val evaluation = getEvaluationById(evaluationId)
         checkDuplicateQuestion(evaluation, question)
@@ -92,7 +89,7 @@ class EvaluationService(
             EvaluationQuestion(
                 evaluation = evaluation,
                 question = question,
-            )
+            ),
         )
     }
 
@@ -118,7 +115,7 @@ class EvaluationService(
     @Transactional
     fun createEvaluationAnswer(
         questionId: UUID,
-        answer: String
+        answer: String,
     ): EvaluationAnswer {
         val question = getEvaluationQuestionById(questionId)
         checkDuplicateAnswer(question, answer)
@@ -126,8 +123,8 @@ class EvaluationService(
         return evaluationAnswerRepository.save(
             EvaluationAnswer(
                 question = question,
-                answer = answer
-            )
+                answer = answer,
+            ),
         )
     }
 
@@ -153,7 +150,7 @@ class EvaluationService(
     fun createEvaluationResult(
         user: User,
         review: Review,
-        answerId: UUID
+        answerId: UUID,
     ): EvaluationResult {
         val answer = getEvaluationAnswerById(answerId)
         checkDuplicateResultAnswer(review, user, answer)
@@ -163,7 +160,7 @@ class EvaluationService(
                 review = review,
                 answer = answer,
                 user = user,
-            )
+            ),
         )
     }
 
@@ -180,11 +177,12 @@ class EvaluationService(
         review: Review,
         answer: EvaluationAnswer,
     ): EvaluationResult {
-        val evaluationResult = getEvaluationResultByQuestionId(
-            userId = user.id!!,
-            reviewId = review.id!!,
-            questionId = answer.question.id!!,
-        )
+        val evaluationResult =
+            getEvaluationResultByQuestionId(
+                userId = user.id!!,
+                reviewId = review.id!!,
+                questionId = answer.question.id!!,
+            )
 
         evaluationResult.answer = answer
         return evaluationResultRepository.save(evaluationResult)
@@ -203,13 +201,13 @@ class EvaluationService(
      * - 이 함수는 @Transactional 어노테이션이 적용되어 있어, 모든 삭제 작업이 하나의 트랜잭션 내에서 실행됩니다.
      *
      * @see EvaluationResult
-     * @see EvaluationResultRepository.deleteByReviewId
+     * @see EvaluationResultRepository.delete
      */
     @Transactional
-    fun deleteEvaluationResultByReviewId(
-        reviewId: UUID,
-    ) {
-        evaluationResultRepository.deleteByReviewId(reviewId)
+    fun deleteEvaluationResultByReviewId(reviewId: UUID) {
+        evaluationResultRepository.delete(
+            reviewId = reviewId,
+        )
     }
 
     /**
@@ -218,9 +216,7 @@ class EvaluationService(
      * @return 조회된 EvaluationAnswer Entity
      * @throws BusinessException ErrorCode.EVALUATION_ANSWER_NOT_FOUND - 답변을 찾을 수 없는 경우
      */
-    fun getEvaluationAnswerById(
-        answerId: UUID,
-    ): EvaluationAnswer {
+    fun getEvaluationAnswerById(answerId: UUID): EvaluationAnswer {
         return evaluationAnswerRepository.findById(answerId)
             .orElseThrow {
                 BusinessException(ErrorCode.EVALUATION_ANSWER_NOT_FOUND)
@@ -233,9 +229,7 @@ class EvaluationService(
      * @return Evaluation Entity
      * @throws BusinessException ErrorCode.EVALUATION_NOT_FOUND - 평가를 찾을 수 없는 경우
      */
-    fun getEvaluationById(
-        evaluationId: UUID
-    ): Evaluation {
+    fun getEvaluationById(evaluationId: UUID): Evaluation {
         return evaluationRepository.findById(evaluationId)
             .orElseThrow {
                 BusinessException(ErrorCode.EVALUATION_NOT_FOUND)
@@ -248,13 +242,10 @@ class EvaluationService(
      * @return Evaluation Entity
      * @throws BusinessException ErrorCode.EVALUATION_NOT_FOUND - 평가를 찾을 수 없는 경우
      */
-    fun getEvaluationByType(
-        evaluationType: String
-    ): Evaluation {
-        return evaluationRepository.findByType(evaluationType)
-            .orElseThrow {
-                BusinessException(ErrorCode.EVALUATION_NOT_FOUND)
-            }
+    fun getEvaluationByType(evaluationType: String): Evaluation {
+        return evaluationRepository.find(
+            type = evaluationType,
+        ) ?: throw BusinessException(ErrorCode.EVALUATION_NOT_FOUND)
     }
 
     /**
@@ -263,9 +254,7 @@ class EvaluationService(
      * @return EvaluationQuestion Entity
      * @throws BusinessException ErrorCode.EVALUATION_QUESTION_NOT_FOUND - 질문을 찾을 수 없는 경우
      */
-    fun getEvaluationQuestionById(
-        questionId: UUID
-    ): EvaluationQuestion {
+    fun getEvaluationQuestionById(questionId: UUID): EvaluationQuestion {
         return evaluationQuestionRepository.findById(questionId)
             .orElseThrow {
                 BusinessException(ErrorCode.EVALUATION_QUESTION_NOT_FOUND)
@@ -277,10 +266,10 @@ class EvaluationService(
      * @param evaluationId 평가 UUID
      * @return EvaluationQuestion Entity 목록
      */
-    fun getEvaluationQuestionListByEvaluationId(
-        evaluationId: UUID
-    ): List<EvaluationQuestion> {
-        return evaluationQuestionRepository.findAllByEvaluation_Id(evaluationId)
+    fun getEvaluationQuestionListByEvaluationId(evaluationId: UUID): List<EvaluationQuestion> {
+        return evaluationQuestionRepository.findAll(
+            evaluationId = evaluationId,
+        )
     }
 
     /**
@@ -296,13 +285,11 @@ class EvaluationService(
         reviewId: UUID,
         questionId: UUID,
     ): EvaluationResult {
-        return evaluationResultRepository.findByUser_IdAndReview_IdAndAnswer_Question_Id(
+        return evaluationResultRepository.find(
             userId = userId,
             reviewId = reviewId,
             questionId = questionId,
-        ).orElseThrow {
-            BusinessException(ErrorCode.EVALUATION_RESULT_NOT_FOUND)
-        }
+        ) ?: throw BusinessException(ErrorCode.EVALUATION_RESULT_NOT_FOUND)
     }
 
     /**
@@ -315,7 +302,7 @@ class EvaluationService(
         userId: UUID,
         reviewId: UUID,
     ): List<EvaluationResult> {
-        return evaluationResultRepository.findByUser_IdAndReview_Id(
+        return evaluationResultRepository.findAll(
             userId = userId,
             reviewId = reviewId,
         )
@@ -331,13 +318,12 @@ class EvaluationService(
     fun checkDuplicateResultAnswer(
         review: Review,
         user: User,
-        answer: EvaluationAnswer
+        answer: EvaluationAnswer,
     ) {
-        val question = answer.question
-        if (evaluationResultRepository.existsByReview_IdAndAnswer_Question_IdAndUser_Id(
-                review.id!!,
-                question.id!!,
-                user.id!!
+        if (evaluationResultRepository.exists(
+                reviewId = review.id!!,
+                questionId = answer.question.id!!,
+                userId = user.id!!,
             )
         ) {
             throw BusinessException(ErrorCode.EVALUATION_RESULT_ANSWER_CONFLICT)
@@ -352,9 +338,13 @@ class EvaluationService(
      */
     fun checkDuplicateQuestion(
         evaluation: Evaluation,
-        question: String
+        question: String,
     ) {
-        if (evaluationQuestionRepository.existsByEvaluationAndQuestion(evaluation, question)) {
+        if (evaluationQuestionRepository.exists(
+                evaluation = evaluation,
+                question = question,
+            )
+        ) {
             throw BusinessException(ErrorCode.EVALUATION_QUESTION_CONFLICT)
         }
     }
@@ -367,7 +357,7 @@ class EvaluationService(
      */
     fun checkDuplicateAnswer(
         question: EvaluationQuestion,
-        answer: String
+        answer: String,
     ) {
         if (evaluationAnswerRepository.existsByQuestionAndAnswer(question, answer)) {
             throw BusinessException(ErrorCode.EVALUATION_ANSWER_CONFLICT)
@@ -379,10 +369,11 @@ class EvaluationService(
      * @param evaluationType 평가 유형 문자열
      * @throws BusinessException ErrorCode.EVALUATION_TYPE_CONFLICT - 중복된 평가 유형이 존재하는 경우
      */
-    fun checkDuplicateType(
-        evaluationType: String
-    ) {
-        if (evaluationRepository.existsByType(evaluationType)) {
+    fun checkDuplicateType(evaluationType: String) {
+        if (evaluationRepository.exists(
+                type = evaluationType,
+            )
+        ) {
             throw BusinessException(ErrorCode.EVALUATION_TYPE_CONFLICT)
         }
     }

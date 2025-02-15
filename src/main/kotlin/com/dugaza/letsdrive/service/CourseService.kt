@@ -13,16 +13,13 @@ import java.util.UUID
 class CourseService(
     private val courseRepository: CourseRepository,
 ) {
-
     /**
      * Course UUID를 이용하여 엔티티 조회
      * @param courseId COURSE UUID
      * @return 조회된 COURSE Entity
      * @exception BusinessException ErrorCode.COURSE_NOT_FOUND
      */
-    fun getCourseById(
-        courseId: UUID
-    ): Course {
+    fun getCourseById(courseId: UUID): Course {
         return courseRepository.findById(courseId)
             .orElseThrow {
                 BusinessException(ErrorCode.COURSE_NOT_FOUND)
@@ -34,9 +31,7 @@ class CourseService(
      * @param courseId Course ID
      * @exception BusinessException ErrorCode.COURSE_NOT_FOUND
      */
-    fun existsCourseById(
-        courseId: UUID,
-    ) {
+    fun existsCourseById(courseId: UUID) {
         val result = courseRepository.existsById(courseId)
         if (!result) throw BusinessException(ErrorCode.COURSE_NOT_FOUND)
     }

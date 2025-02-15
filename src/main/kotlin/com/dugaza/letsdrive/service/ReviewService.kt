@@ -7,7 +7,7 @@ import com.dugaza.letsdrive.entity.common.Review
 import com.dugaza.letsdrive.entity.common.evaluation.Evaluation
 import com.dugaza.letsdrive.exception.BusinessException
 import com.dugaza.letsdrive.exception.ErrorCode
-import com.dugaza.letsdrive.repository.ReviewRepository
+import com.dugaza.letsdrive.repository.review.ReviewRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -54,9 +54,7 @@ class ReviewService(
      * 모든 데이터베이스 작업이 하나의 트랜잭션 내에서 실행됩니다.
      */
     @Transactional
-    fun createReview(
-        request: ReviewCreateRequest,
-    ): Review {
+    fun createReview(request: ReviewCreateRequest): Review {
         val user = userService.getUserById(request.userId)
         val evaluation = evaluationService.getEvaluationById(request.evaluationId)
         val fileMaster = fileService.getFileMaster(request.fileMasterId)
@@ -72,21 +70,22 @@ class ReviewService(
         request.evaluationResultList.forEach {
             checkValidEvaluationQuestionByAnswerId(
                 evaluation = evaluation,
-                answerId = it
+                answerId = it,
             )
         }
 
-        val review = reviewRepository.save(
-            Review(
-                targetId = request.targetId,
-                user = user,
-                evaluation = evaluation,
-                score = request.score,
-                content = request.content,
-                isDisplayed = true,
-                file = fileMaster,
+        val review =
+            reviewRepository.save(
+                Review(
+                    targetId = request.targetId,
+                    user = user,
+                    evaluation = evaluation,
+                    score = request.score,
+                    content = request.content,
+                    isDisplayed = true,
+                    file = fileMaster,
+                ),
             )
-        )
 
         request.evaluationResultList
             .stream()
@@ -136,20 +135,19 @@ class ReviewService(
      * TODO: 리뷰 수정 권한 검사 (로그인 기능 머지 이후 진행)
      */
     @Transactional
-    fun modifyReview(
-        request: ModifyReviewRequest
-    ): Review {
+    fun modifyReview(request: ModifyReviewRequest): Review {
         checkValidScore(
             score = request.score,
         )
         val review = getReviewById(request.reviewId)
-        val answerList = request.evaluationResultList.map {
-            evaluationService.getEvaluationAnswerById(it)
-        }
+        val answerList =
+            request.evaluationResultList.map {
+                evaluationService.getEvaluationAnswerById(it)
+            }
 
         review.update(
             score = request.score,
-            content = request.content
+            content = request.content,
         )
 
         answerList.forEach {
@@ -211,9 +209,7 @@ class ReviewService(
      *  )
      *  - 지원하지 않는 TargetType인 경우 (when 표현식이 exhaustive하지 않은 경우)
      */
-    fun getReviewList(
-        request: GetReviewListRequest,
-    ): List<Review> {
+    fun getReviewList(request: GetReviewListRequest): List<Review> {
         checkExistsTarget(
             targetId = request.targetId,
             targetType = request.targetType,
@@ -242,9 +238,7 @@ class ReviewService(
      *
      * 주의: 이 함수는 null을 반환하지 않습니다. Review가 존재하지 않을 경우 항상 예외를 발생시킵니다.
      */
-    fun getReviewById(
-        reviewId: UUID,
-    ): Review {
+    fun getReviewById(reviewId: UUID): Review {
         return reviewRepository.findById(reviewId)
             .orElseThrow {
                 BusinessException(ErrorCode.REVIEW_NOT_FOUND)
@@ -360,9 +354,7 @@ class ReviewService(
      * @see BusinessException
      * @see ErrorCode.REVIEW_NOT_FOUND
      */
-    fun checkExistsReview(
-        reviewId: UUID,
-    ) {
+    fun checkExistsReview(reviewId: UUID) {
         if (!reviewRepository.existsById(reviewId)) {
             throw BusinessException(ErrorCode.REVIEW_NOT_FOUND)
         }

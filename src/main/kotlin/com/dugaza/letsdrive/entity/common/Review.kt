@@ -64,6 +64,6 @@ class Review(
         content: String? = null,
     ) {
         score?.let { this.score = it }
-        content?.let { this.content = it}
+        content?.let { this.content = it }
     }
 }

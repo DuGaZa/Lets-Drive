@@ -21,12 +21,13 @@ class ReviewResponse(
             return ReviewResponse(
                 reviewId = review.id!!,
                 userId = review.user.id!!,
-                evaluationResultList = evaluationResultList.map {
-                    EvaluationResultResponse.of(
-                        question = it.answer.question,
-                        answer = it.answer,
-                    )
-                },
+                evaluationResultList =
+                    evaluationResultList.map {
+                        EvaluationResultResponse.of(
+                            question = it.answer.question,
+                            answer = it.answer,
+                        )
+                    },
                 score = review.score,
                 content = review.content,
                 isDisplayed = review.isDisplayed,

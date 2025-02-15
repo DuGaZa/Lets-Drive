@@ -10,7 +10,7 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.assertThrows
@@ -37,21 +37,22 @@ class CourseServiceTest {
         courseId = UUID.randomUUID()
         userId = UUID.randomUUID()
 
-        mockUser1 = mockk<User> {
-            every { id } returns userId
-            every { email } returns "mock@example.com"
-            every { provider } returns AuthProvider.GOOGLE
-            every { providerId } returns UUID.randomUUID().toString()
-            every { nickname } returns "mockNickname"
-            every { phoneNumber } returns "01012341234"
+        mockUser1 =
+            mockk<User> {
+                every { id } returns userId
+                every { email } returns "mock@example.com"
+                every { provider } returns AuthProvider.GOOGLE
+                every { providerId } returns UUID.randomUUID().toString()
+                every { nickname } returns "mockNickname"
+                every { phoneNumber } returns "01012341234"
+            }
 
-        }
-
-        mockCourse1 = mockk<Course> {
-            every { id } returns courseId
-            every { user } returns mockUser1
-            every { name } returns "mockCourseName"
-        }
+        mockCourse1 =
+            mockk<Course> {
+                every { id } returns courseId
+                every { user } returns mockUser1
+                every { name } returns "mockCourseName"
+            }
 
         // Repository 동작 설정
         every { courseRepository.findById(courseId) } returns Optional.of(mockCourse1)

@@ -7,7 +7,9 @@ import org.springframework.stereotype.Repository
 import java.util.UUID
 
 @Repository
-interface EvaluationAnswerRepository : JpaRepository<EvaluationAnswer, UUID> {
-
-    fun existsByQuestionAndAnswer(question: EvaluationQuestion, answer: String): Boolean
+interface EvaluationAnswerRepository : JpaRepository<EvaluationAnswer, UUID>, EvaluationAnswerCustomRepository {
+    fun existsByQuestionAndAnswer(
+        question: EvaluationQuestion,
+        answer: String,
+    ): Boolean
 }

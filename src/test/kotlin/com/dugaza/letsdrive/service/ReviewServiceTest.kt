@@ -13,7 +13,6 @@ import com.dugaza.letsdrive.entity.user.AuthProvider
 import com.dugaza.letsdrive.entity.user.User
 import com.dugaza.letsdrive.exception.BusinessException
 import com.dugaza.letsdrive.exception.ErrorCode
-import com.dugaza.letsdrive.repository.ReviewRepository
 import com.dugaza.letsdrive.repository.course.CourseRepository
 import com.dugaza.letsdrive.repository.evaluation.EvaluationAnswerRepository
 import com.dugaza.letsdrive.repository.evaluation.EvaluationQuestionRepository
@@ -21,6 +20,7 @@ import com.dugaza.letsdrive.repository.evaluation.EvaluationRepository
 import com.dugaza.letsdrive.repository.evaluation.EvaluationResultRepository
 import com.dugaza.letsdrive.repository.file.FileDetailRepository
 import com.dugaza.letsdrive.repository.file.FileMasterRepository
+import com.dugaza.letsdrive.repository.review.ReviewRepository
 import com.dugaza.letsdrive.repository.user.UserRepository
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -28,10 +28,17 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.spyk
-import org.junit.jupiter.api.*
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertDoesNotThrow
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.fail
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import java.util.*
+import java.util.Optional
+import java.util.UUID
 
 @ExtendWith(MockKExtension::class)
 class ReviewServiceTest {
@@ -66,19 +73,19 @@ class ReviewServiceTest {
     private lateinit var userRepository: UserRepository
 
     @InjectMockKs
-    private var courseService: CourseService = mockk();
+    private var courseService: CourseService = mockk()
 
     @InjectMockKs
-    private var evaluationService: EvaluationService = mockk();
+    private var evaluationService: EvaluationService = mockk()
 
     @InjectMockKs
-    private var reviewService: ReviewService = mockk();
+    private var reviewService: ReviewService = mockk()
 
     @InjectMockKs
-    private var fileService: FileService = mockk();
+    private var fileService: FileService = mockk()
 
     @InjectMockKs
-    private var userService: UserService = mockk();
+    private var userService: UserService = mockk()
 
     private lateinit var mockCourse: Course
     private lateinit var courseId: UUID
@@ -116,31 +123,36 @@ class ReviewServiceTest {
     @BeforeEach
     fun setUp() {
         fileProperties = FileProperties()
-        userService = UserService(
-            userRepository = userRepository,
-        )
-        courseService = CourseService(
-            courseRepository = courseRepository,
-        )
-        evaluationService = EvaluationService(
-            evaluationRepository = evaluationRepository,
-            evaluationResultRepository = evaluationResultRepository,
-            evaluationAnswerRepository = evaluationAnswerRepository,
-            evaluationQuestionRepository = evaluationQuestionRepository,
-        )
-        fileService = FileService(
-            fileDetailRepository = fileDetailRepository,
-            fileMasterRepository = fileMasterRepository,
-            userService = userService,
-            fileProperties = fileProperties,
-        )
-        reviewService = ReviewService(
-            reviewRepository = reviewRepository,
-            userService = userService,
-            courseService = courseService,
-            evaluationService = evaluationService,
-            fileService = fileService,
-        )
+        userService =
+            UserService(
+                userRepository = userRepository,
+            )
+        courseService =
+            CourseService(
+                courseRepository = courseRepository,
+            )
+        evaluationService =
+            EvaluationService(
+                evaluationRepository = evaluationRepository,
+                evaluationResultRepository = evaluationResultRepository,
+                evaluationAnswerRepository = evaluationAnswerRepository,
+                evaluationQuestionRepository = evaluationQuestionRepository,
+            )
+        fileService =
+            FileService(
+                fileDetailRepository = fileDetailRepository,
+                fileMasterRepository = fileMasterRepository,
+                userService = userService,
+                fileProperties = fileProperties,
+            )
+        reviewService =
+            ReviewService(
+                reviewRepository = reviewRepository,
+                userService = userService,
+                courseService = courseService,
+                evaluationService = evaluationService,
+                fileService = fileService,
+            )
 
         fileProperties = FileProperties()
         courseId = UUID.randomUUID()
@@ -158,73 +170,84 @@ class ReviewServiceTest {
         courseEvaluationQuestion2Answer3Id = UUID.randomUUID()
         fileMasterId = UUID.randomUUID()
 
-        mockUser = mockk<User> {
-            every { id } returns userId
-            every { email } returns userEmail
-            every { provider } returns AuthProvider.GOOGLE
-            every { providerId } returns userProviderId
-            every { nickname } returns "TEST_USER_NICKNAME"
-            every { phoneNumber } returns "01012341234"
-        }
+        mockUser =
+            mockk<User> {
+                every { id } returns userId
+                every { email } returns userEmail
+                every { provider } returns AuthProvider.GOOGLE
+                every { providerId } returns userProviderId
+                every { nickname } returns "TEST_USER_NICKNAME"
+                every { phoneNumber } returns "01012341234"
+            }
 
-        mockCourse = mockk<Course> {
-            every { id } returns courseId
-            every { user } returns mockUser
-            every { name } returns "TEST_USER_NAME"
-        }
+        mockCourse =
+            mockk<Course> {
+                every { id } returns courseId
+                every { user } returns mockUser
+                every { name } returns "TEST_USER_NAME"
+            }
 
-        mockEvaluation = mockk<Evaluation> {
-            every { id } returns evaluationId
-            every { type } returns evaluationType
-        }
+        mockEvaluation =
+            mockk<Evaluation> {
+                every { id } returns evaluationId
+                every { type } returns evaluationType
+            }
 
-        mockCourseEvaluationQuestion1 = mockk<EvaluationQuestion> {
-            every { id } returns courseEvaluationQuestion1Id
-            every { evaluation } returns mockEvaluation
-            every { question } returns "TEST_COURSE_EVALUATION_QUESTION1"
-        }
+        mockCourseEvaluationQuestion1 =
+            mockk<EvaluationQuestion> {
+                every { id } returns courseEvaluationQuestion1Id
+                every { evaluation } returns mockEvaluation
+                every { question } returns "TEST_COURSE_EVALUATION_QUESTION1"
+            }
 
-        mockCourseEvaluationQuestion1Answer1 = mockk<EvaluationAnswer> {
-            every { id } returns courseEvaluationQuestion1Answer1Id
-            every { question } returns mockCourseEvaluationQuestion1
-            every { answer } returns "TEST_COURSE_EVALUATION_QUESTION1_ANSWER1"
-        }
+        mockCourseEvaluationQuestion1Answer1 =
+            mockk<EvaluationAnswer> {
+                every { id } returns courseEvaluationQuestion1Answer1Id
+                every { question } returns mockCourseEvaluationQuestion1
+                every { answer } returns "TEST_COURSE_EVALUATION_QUESTION1_ANSWER1"
+            }
 
-        mockCourseEvaluationQuestion1Answer2 = mockk<EvaluationAnswer> {
-            every { id } returns courseEvaluationQuestion1Answer2Id
-            every { question } returns mockCourseEvaluationQuestion1
-            every { answer } returns "TEST_COURSE_EVALUATION_QUESTION1_ANSWER2"
-        }
+        mockCourseEvaluationQuestion1Answer2 =
+            mockk<EvaluationAnswer> {
+                every { id } returns courseEvaluationQuestion1Answer2Id
+                every { question } returns mockCourseEvaluationQuestion1
+                every { answer } returns "TEST_COURSE_EVALUATION_QUESTION1_ANSWER2"
+            }
 
-        mockCourseEvaluationQuestion1Answer3 = mockk<EvaluationAnswer> {
-            every { id } returns courseEvaluationQuestion1Answer3Id
-            every { question } returns mockCourseEvaluationQuestion1
-            every { answer } returns "TEST_COURSE_EVALUATION_QUESTION1_ANSWER3"
-        }
+        mockCourseEvaluationQuestion1Answer3 =
+            mockk<EvaluationAnswer> {
+                every { id } returns courseEvaluationQuestion1Answer3Id
+                every { question } returns mockCourseEvaluationQuestion1
+                every { answer } returns "TEST_COURSE_EVALUATION_QUESTION1_ANSWER3"
+            }
 
-        mockCourseEvaluationQuestion2 = mockk<EvaluationQuestion> {
-            every { id } returns courseEvaluationQuestion2Id
-            every { evaluation } returns mockEvaluation
-            every { question } returns "TEST_COURSE_EVALUATION_QUESTION2"
-        }
+        mockCourseEvaluationQuestion2 =
+            mockk<EvaluationQuestion> {
+                every { id } returns courseEvaluationQuestion2Id
+                every { evaluation } returns mockEvaluation
+                every { question } returns "TEST_COURSE_EVALUATION_QUESTION2"
+            }
 
-        mockCourseEvaluationQuestion2Answer1 = mockk<EvaluationAnswer> {
-            every { id } returns courseEvaluationQuestion2Answer1Id
-            every { question } returns mockCourseEvaluationQuestion2
-            every { answer } returns "TEST_COURSE_EVALUATION_QUESTION2_ANSWER1"
-        }
+        mockCourseEvaluationQuestion2Answer1 =
+            mockk<EvaluationAnswer> {
+                every { id } returns courseEvaluationQuestion2Answer1Id
+                every { question } returns mockCourseEvaluationQuestion2
+                every { answer } returns "TEST_COURSE_EVALUATION_QUESTION2_ANSWER1"
+            }
 
-        mockCourseEvaluationQuestion2Answer2 = mockk<EvaluationAnswer> {
-            every { id } returns courseEvaluationQuestion2Answer2Id
-            every { question } returns mockCourseEvaluationQuestion2
-            every { answer } returns "TEST_COURSE_EVALUATION_QUESTION2_ANSWER2"
-        }
+        mockCourseEvaluationQuestion2Answer2 =
+            mockk<EvaluationAnswer> {
+                every { id } returns courseEvaluationQuestion2Answer2Id
+                every { question } returns mockCourseEvaluationQuestion2
+                every { answer } returns "TEST_COURSE_EVALUATION_QUESTION2_ANSWER2"
+            }
 
-        mockCourseEvaluationQuestion2Answer3 = mockk<EvaluationAnswer> {
-            every { id } returns courseEvaluationQuestion2Answer3Id
-            every { question } returns mockCourseEvaluationQuestion2
-            every { answer } returns "TEST_COURSE_EVALUATION_QUESTION2_ANSWER3"
-        }
+        mockCourseEvaluationQuestion2Answer3 =
+            mockk<EvaluationAnswer> {
+                every { id } returns courseEvaluationQuestion2Answer3Id
+                every { question } returns mockCourseEvaluationQuestion2
+                every { answer } returns "TEST_COURSE_EVALUATION_QUESTION2_ANSWER3"
+            }
 
         every {
             evaluationAnswerRepository.findById(any<UUID>())
@@ -241,35 +264,39 @@ class ReviewServiceTest {
             }
         }
 
-        val realCourseReviewCreateRequest = ReviewCreateRequest(
-            targetId = courseId,
-            userId = userId,
-            evaluationId = evaluationId,
-            targetType = TargetType.COURSE,
-            evaluationResultList = arrayOf(
-                courseEvaluationQuestion2Answer1Id,
-                courseEvaluationQuestion1Answer2Id,
-            ).toList(),
-            fileMasterId = fileMasterId,
-            score = reviewScore,
-            content = "TEST_CONTENT"
-        )
+        val realCourseReviewCreateRequest =
+            ReviewCreateRequest(
+                targetId = courseId,
+                userId = userId,
+                evaluationId = evaluationId,
+                targetType = TargetType.COURSE,
+                evaluationResultList =
+                    arrayOf(
+                        courseEvaluationQuestion2Answer1Id,
+                        courseEvaluationQuestion1Answer2Id,
+                    ).toList(),
+                fileMasterId = fileMasterId,
+                score = reviewScore,
+                content = "TEST_CONTENT",
+            )
         mockCourseReviewCreateRequest = spyk(realCourseReviewCreateRequest)
 
-        mockReview = mockk<Review> {
-            every { id } returns reviewId
-            every { targetId } returns courseId
-            every { user } returns mockUser
-            every { evaluation } returns mockEvaluation
-            every { score } returns reviewScore
-            every { content } returns "TEST_CONTENT"
-            every { isDisplayed } returns true
-        }
+        mockReview =
+            mockk<Review> {
+                every { id } returns reviewId
+                every { targetId } returns courseId
+                every { user } returns mockUser
+                every { evaluation } returns mockEvaluation
+                every { score } returns reviewScore
+                every { content } returns "TEST_CONTENT"
+                every { isDisplayed } returns true
+            }
 
-        mockFileMaster = mockk<FileMaster> {
-            every { id } returns fileMasterId
-            every { user } returns mockUser
-        }
+        mockFileMaster =
+            mockk<FileMaster> {
+                every { id } returns fileMasterId
+                every { user } returns mockUser
+            }
     }
 
     @Nested
@@ -314,12 +341,13 @@ class ReviewServiceTest {
                 ReviewService(reviewRepository, userService, courseService, evaluationService, fileService)
 
             // When
-            val exception = assertThrows<BusinessException> {
-                reviewService.checkExistsTarget(
-                    targetId = invalidUUID,
-                    targetType = targetType
-                )
-            }
+            val exception =
+                assertThrows<BusinessException> {
+                    reviewService.checkExistsTarget(
+                        targetId = invalidUUID,
+                        targetType = targetType,
+                    )
+                }
 
             // Then
             assertEquals(ErrorCode.COURSE_NOT_FOUND, exception.errorCode)
@@ -333,9 +361,10 @@ class ReviewServiceTest {
         @DisplayName("유효한 스코어를 이용하여 스코어가 정상적인 값인지 테스트 성공")
         fun `should return true when given valid score`() {
             // Given
-            val validScoreList: List<Double> = arrayOf(
-                0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0
-            ).toList()
+            val validScoreList: List<Double> =
+                arrayOf(
+                    0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0,
+                ).toList()
 
             // When & Then
             assertDoesNotThrow {
@@ -349,16 +378,18 @@ class ReviewServiceTest {
         @DisplayName("유효하지 않은 스코어를 이용하여 스코어가 정상적인 값인지 체크 예외 발생")
         fun `should throw exception when given invalid score`() {
             // Given
-            val invalidScoreList: List<Double> = arrayOf(
-                -0.5, -20.0, -3.277E43, 0.0, -0.0, -0.201291,
-                0.1, 0.2391, 4.7, 8.5, 10.0, 15.5555, 2.39E42
-            ).toList()
+            val invalidScoreList: List<Double> =
+                arrayOf(
+                    -0.5, -20.0, -3.277E43, 0.0, -0.0, -0.201291,
+                    0.1, 0.2391, 4.7, 8.5, 10.0, 15.5555, 2.39E42,
+                ).toList()
 
             // When & Then
             invalidScoreList.forEach {
-                val exception = assertThrows<BusinessException> {
-                    reviewService.checkValidScore(it)
-                }
+                val exception =
+                    assertThrows<BusinessException> {
+                        reviewService.checkValidScore(it)
+                    }
 
                 assertEquals(ErrorCode.REVIEW_SCORE_INVALID, exception.errorCode)
             }
@@ -377,9 +408,10 @@ class ReviewServiceTest {
             } returns Optional.of(mockReview)
 
             // When
-            val result = assertDoesNotThrow<Review> {
-                reviewService.getReviewById(reviewId)
-            }
+            val result =
+                assertDoesNotThrow<Review> {
+                    reviewService.getReviewById(reviewId)
+                }
 
             // Then
             assertEquals(reviewId, result.id)
@@ -395,9 +427,10 @@ class ReviewServiceTest {
             } returns Optional.empty()
 
             // When
-            val exception = assertThrows<BusinessException> {
-                reviewService.getReviewById(invalidUUID)
-            }
+            val exception =
+                assertThrows<BusinessException> {
+                    reviewService.getReviewById(invalidUUID)
+                }
 
             // Then
             assertEquals(ErrorCode.REVIEW_NOT_FOUND, exception.errorCode)
@@ -415,15 +448,19 @@ class ReviewServiceTest {
 
             every {
                 evaluationAnswerRepository.findById(validUUID)
-            } returns Optional.of(mockk<EvaluationAnswer> {
-                every { id } returns validUUID
-                every { answer } returns "VALID_ANSWER"
-                every { question } returns mockk<EvaluationQuestion> {
-                    every { id } returns UUID.randomUUID()
-                    every { question } returns "TEST_QUESTION"
-                    every { evaluation } returns mockEvaluation
-                }
-            })
+            } returns
+                Optional.of(
+                    mockk<EvaluationAnswer> {
+                        every { id } returns validUUID
+                        every { answer } returns "VALID_ANSWER"
+                        every { question } returns
+                            mockk<EvaluationQuestion> {
+                                every { id } returns UUID.randomUUID()
+                                every { question } returns "TEST_QUESTION"
+                                every { evaluation } returns mockEvaluation
+                            }
+                    },
+                )
 
             // When & Then
             assertDoesNotThrow {
@@ -442,25 +479,31 @@ class ReviewServiceTest {
 
             every {
                 evaluationAnswerRepository.findById(invalidUUID)
-            } returns Optional.of(mockk<EvaluationAnswer> {
-                every { id } returns invalidUUID
-                every { answer } returns "INVALID_ANSWER"
-                every { question } returns mockk<EvaluationQuestion> {
-                    every { id } returns UUID.randomUUID()
-                    every { question } returns "TEST_QUESTION"
-                    every { evaluation } returns mockk<Evaluation> {
-                        every { id } returns UUID.randomUUID()
-                    }
-                }
-            })
+            } returns
+                Optional.of(
+                    mockk<EvaluationAnswer> {
+                        every { id } returns invalidUUID
+                        every { answer } returns "INVALID_ANSWER"
+                        every { question } returns
+                            mockk<EvaluationQuestion> {
+                                every { id } returns UUID.randomUUID()
+                                every { question } returns "TEST_QUESTION"
+                                every { evaluation } returns
+                                    mockk<Evaluation> {
+                                        every { id } returns UUID.randomUUID()
+                                    }
+                            }
+                    },
+                )
 
             // When
-            val exception = assertThrows<BusinessException> {
-                reviewService.checkValidEvaluationQuestionByAnswerId(
-                    evaluation = mockEvaluation,
-                    answerId = invalidUUID,
-                )
-            }
+            val exception =
+                assertThrows<BusinessException> {
+                    reviewService.checkValidEvaluationQuestionByAnswerId(
+                        evaluation = mockEvaluation,
+                        answerId = invalidUUID,
+                    )
+                }
 
             // Then
             assertEquals(ErrorCode.INVALID_EVALUATION_ANSWER, exception.errorCode)
@@ -482,9 +525,10 @@ class ReviewServiceTest {
                 val targetId = courseId
 
                 when (targetType) {
-                    TargetType.COURSE -> every {
-                        courseRepository.existsById(targetId)
-                    } returns true
+                    TargetType.COURSE ->
+                        every {
+                            courseRepository.existsById(targetId)
+                        } returns true
 
                     else -> {
                         fail()
@@ -507,19 +551,19 @@ class ReviewServiceTest {
                     reviewRepository.save(
                         match {
                             it.targetId == mockCourseReviewCreateRequest.targetId &&
-                                    it.user.id == mockCourseReviewCreateRequest.userId &&
-                                    it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
-                                    it.score == mockCourseReviewCreateRequest.score &&
-                                    it.file.id == mockCourseReviewCreateRequest.fileMasterId
-                        }
+                                it.user.id == mockCourseReviewCreateRequest.userId &&
+                                it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
+                                it.score == mockCourseReviewCreateRequest.score &&
+                                it.file.id == mockCourseReviewCreateRequest.fileMasterId
+                        },
                     )
                 } returns mockReview
 
                 every {
-                    evaluationResultRepository.existsByReview_IdAndAnswer_Question_IdAndUser_Id(
-                        any<UUID>(),
-                        any<UUID>(),
-                        any<UUID>()
+                    evaluationResultRepository.exists(
+                        reviewId = any(),
+                        questionId = any(),
+                        userId = any(),
                     )
                 } answers {
                     val innerAnswerId = secondArg<UUID>()
@@ -534,14 +578,15 @@ class ReviewServiceTest {
                     evaluationResultRepository.save(
                         match {
                             it.review.id == reviewId
-                        }
+                        },
                     )
                 } returns mockk()
 
                 // When
-                val result = assertDoesNotThrow<Review> {
-                    reviewService.createReview(mockCourseReviewCreateRequest)
-                }
+                val result =
+                    assertDoesNotThrow<Review> {
+                        reviewService.createReview(mockCourseReviewCreateRequest)
+                    }
 
                 // Then
                 assertEquals(reviewId, result.id)
@@ -579,11 +624,11 @@ class ReviewServiceTest {
                     courseRepository.existsById(invalidCourseUUID)
                 } returns false
 
-
                 // When
-                val exception = assertThrows<BusinessException> {
-                    reviewService.createReview(dtoSpy)
-                }
+                val exception =
+                    assertThrows<BusinessException> {
+                        reviewService.createReview(dtoSpy)
+                    }
 
                 // Then
                 assertEquals(ErrorCode.COURSE_NOT_FOUND, exception.errorCode)
@@ -621,19 +666,19 @@ class ReviewServiceTest {
                     reviewRepository.save(
                         match {
                             it.targetId == mockCourseReviewCreateRequest.targetId &&
-                                    it.user.id == mockCourseReviewCreateRequest.userId &&
-                                    it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
-                                    it.score == mockCourseReviewCreateRequest.score &&
-                                    it.file.id == mockCourseReviewCreateRequest.fileMasterId
-                        }
+                                it.user.id == mockCourseReviewCreateRequest.userId &&
+                                it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
+                                it.score == mockCourseReviewCreateRequest.score &&
+                                it.file.id == mockCourseReviewCreateRequest.fileMasterId
+                        },
                     )
                 } returns mockReview
 
                 every {
-                    evaluationResultRepository.existsByReview_IdAndAnswer_Question_IdAndUser_Id(
-                        any<UUID>(),
-                        any<UUID>(),
-                        any<UUID>()
+                    evaluationResultRepository.exists(
+                        reviewId = any(),
+                        questionId = any(),
+                        userId = any(),
                     )
                 } answers {
                     val innerAnswerId = secondArg<UUID>()
@@ -648,14 +693,15 @@ class ReviewServiceTest {
                     evaluationResultRepository.save(
                         match {
                             it.review.id == reviewId
-                        }
+                        },
                     )
                 } returns mockk()
 
                 // When
-                val result = assertDoesNotThrow<Review> {
-                    reviewService.createReview(mockCourseReviewCreateRequest)
-                }
+                val result =
+                    assertDoesNotThrow<Review> {
+                        reviewService.createReview(mockCourseReviewCreateRequest)
+                    }
 
                 // Then
                 assertEquals(reviewId, result.id)
@@ -678,9 +724,10 @@ class ReviewServiceTest {
                 } returns Optional.empty()
 
                 // When
-                val exception = assertThrows<BusinessException> {
-                    reviewService.createReview(dtoSpy)
-                }
+                val exception =
+                    assertThrows<BusinessException> {
+                        reviewService.createReview(dtoSpy)
+                    }
 
                 // Then
                 assertEquals(ErrorCode.USER_NOT_FOUND, exception.errorCode)
@@ -689,7 +736,7 @@ class ReviewServiceTest {
 
         @Nested
         @DisplayName("Evaluation 관련 테스트")
-        inner class _Evaluation {
+        inner class EvaluationTest {
             @Test
             @DisplayName("유효한 평가 ID를 이용하여 리뷰 생성 테스트 성공")
             fun `should create review successfully when given valid evaluation ID`() {
@@ -718,19 +765,19 @@ class ReviewServiceTest {
                     reviewRepository.save(
                         match {
                             it.targetId == mockCourseReviewCreateRequest.targetId &&
-                                    it.user.id == mockCourseReviewCreateRequest.userId &&
-                                    it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
-                                    it.score == mockCourseReviewCreateRequest.score &&
-                                    it.file.id == mockCourseReviewCreateRequest.fileMasterId
-                        }
+                                it.user.id == mockCourseReviewCreateRequest.userId &&
+                                it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
+                                it.score == mockCourseReviewCreateRequest.score &&
+                                it.file.id == mockCourseReviewCreateRequest.fileMasterId
+                        },
                     )
                 } returns mockReview
 
                 every {
-                    evaluationResultRepository.existsByReview_IdAndAnswer_Question_IdAndUser_Id(
-                        any<UUID>(),
-                        any<UUID>(),
-                        any<UUID>()
+                    evaluationResultRepository.exists(
+                        reviewId = any(),
+                        questionId = any(),
+                        userId = any(),
                     )
                 } answers {
                     val innerAnswerId = secondArg<UUID>()
@@ -745,14 +792,15 @@ class ReviewServiceTest {
                     evaluationResultRepository.save(
                         match {
                             it.review.id == reviewId
-                        }
+                        },
                     )
                 } returns mockk()
 
                 // When
-                val result = assertDoesNotThrow<Review> {
-                    reviewService.createReview(mockCourseReviewCreateRequest)
-                }
+                val result =
+                    assertDoesNotThrow<Review> {
+                        reviewService.createReview(mockCourseReviewCreateRequest)
+                    }
 
                 // Then
                 assertEquals(reviewId, result.id)
@@ -779,9 +827,10 @@ class ReviewServiceTest {
                 } returns Optional.empty()
 
                 // When
-                val exception = assertThrows<BusinessException> {
-                    reviewService.createReview(dtoSpy)
-                }
+                val exception =
+                    assertThrows<BusinessException> {
+                        reviewService.createReview(dtoSpy)
+                    }
 
                 // Then
                 assertEquals(ErrorCode.EVALUATION_NOT_FOUND, exception.errorCode)
@@ -796,10 +845,11 @@ class ReviewServiceTest {
             fun `should create review successfully when given valid evaluation result list`() {
                 // Given
                 val spyDto = spyk<ReviewCreateRequest>(mockCourseReviewCreateRequest)
-                val mockEvaluationResultList = arrayOf(
-                    courseEvaluationQuestion1Answer2Id,
-                    courseEvaluationQuestion2Answer1Id,
-                ).toList()
+                val mockEvaluationResultList =
+                    arrayOf(
+                        courseEvaluationQuestion1Answer2Id,
+                        courseEvaluationQuestion2Answer1Id,
+                    ).toList()
 
                 every {
                     spyDto.evaluationResultList
@@ -829,19 +879,19 @@ class ReviewServiceTest {
                     reviewRepository.save(
                         match {
                             it.targetId == mockCourseReviewCreateRequest.targetId &&
-                                    it.user.id == mockCourseReviewCreateRequest.userId &&
-                                    it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
-                                    it.score == mockCourseReviewCreateRequest.score &&
-                                    it.file.id == mockCourseReviewCreateRequest.fileMasterId
-                        }
+                                it.user.id == mockCourseReviewCreateRequest.userId &&
+                                it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
+                                it.score == mockCourseReviewCreateRequest.score &&
+                                it.file.id == mockCourseReviewCreateRequest.fileMasterId
+                        },
                     )
                 } returns mockReview
 
                 every {
-                    evaluationResultRepository.existsByReview_IdAndAnswer_Question_IdAndUser_Id(
-                        any<UUID>(),
-                        any<UUID>(),
-                        any<UUID>()
+                    evaluationResultRepository.exists(
+                        reviewId = any(),
+                        questionId = any(),
+                        userId = any(),
                     )
                 } answers {
                     val innerQuestionId = secondArg<UUID>()
@@ -856,18 +906,20 @@ class ReviewServiceTest {
                     evaluationResultRepository.save(
                         match {
                             it.review.id == reviewId
-                        }
+                        },
                     )
-                } returns mockk {
-                    every { id } returns UUID.randomUUID()
-                    every { review } returns mockReview
-                    every { user } returns mockUser
-                }
+                } returns
+                    mockk {
+                        every { id } returns UUID.randomUUID()
+                        every { review } returns mockReview
+                        every { user } returns mockUser
+                    }
 
                 // When
-                val result = assertDoesNotThrow<Review> {
-                    reviewService.createReview(mockCourseReviewCreateRequest)
-                }
+                val result =
+                    assertDoesNotThrow<Review> {
+                        reviewService.createReview(mockCourseReviewCreateRequest)
+                    }
 
                 // Then
                 assertEquals(reviewId, result.id)
@@ -878,10 +930,11 @@ class ReviewServiceTest {
             fun `should throw exception when evaluation result list contains duplicate answers`() {
                 // Given
                 val spyDto = spyk<ReviewCreateRequest>(mockCourseReviewCreateRequest)
-                val invalidEvaluationResultList = arrayOf(
-                    courseEvaluationQuestion1Answer1Id,
-                    courseEvaluationQuestion1Answer1Id,
-                ).toList()
+                val invalidEvaluationResultList =
+                    arrayOf(
+                        courseEvaluationQuestion1Answer1Id,
+                        courseEvaluationQuestion1Answer1Id,
+                    ).toList()
 
                 every {
                     spyDto.evaluationResultList
@@ -911,11 +964,11 @@ class ReviewServiceTest {
                     reviewRepository.save(
                         match {
                             it.targetId == mockCourseReviewCreateRequest.targetId &&
-                                    it.user.id == mockCourseReviewCreateRequest.userId &&
-                                    it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
-                                    it.score == mockCourseReviewCreateRequest.score &&
-                                    it.file.id == mockCourseReviewCreateRequest.fileMasterId
-                        }
+                                it.user.id == mockCourseReviewCreateRequest.userId &&
+                                it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
+                                it.score == mockCourseReviewCreateRequest.score &&
+                                it.file.id == mockCourseReviewCreateRequest.fileMasterId
+                        },
                     )
                 } returns mockReview
 
@@ -931,10 +984,10 @@ class ReviewServiceTest {
 
                 var counter = 0 // 호출 횟수 추적을 위한 변수
                 every {
-                    evaluationResultRepository.existsByReview_IdAndAnswer_Question_IdAndUser_Id(
-                        any<UUID>(),
-                        any<UUID>(),
-                        any<UUID>(),
+                    evaluationResultRepository.exists(
+                        reviewId = any(),
+                        questionId = any(),
+                        userId = any(),
                     )
                 } answers {
                     val innerQuestionId = secondArg<UUID>()
@@ -942,29 +995,33 @@ class ReviewServiceTest {
                     if (innerQuestionId == courseEvaluationQuestion1Id) {
                         counter++
                         return@answers when (counter) {
-                            1 -> false  // 첫 번째 호출
-                            2 -> true   // 두 번째 호출
+                            1 -> false // 첫 번째 호출
+                            2 -> true // 두 번째 호출
                             else -> true // 이후 호출 기본값
                         }
-                    } else false
+                    } else {
+                        false
+                    }
                 }
 
                 every {
                     evaluationResultRepository.save(
                         match {
                             it.review.id == reviewId
-                        }
+                        },
                     )
-                } returns mockk {
-                    every { id } returns UUID.randomUUID()
-                    every { review } returns mockReview
-                    every { user } returns mockUser
-                }
+                } returns
+                    mockk {
+                        every { id } returns UUID.randomUUID()
+                        every { review } returns mockReview
+                        every { user } returns mockUser
+                    }
 
                 // When
-                val exception = assertThrows<BusinessException> {
-                    reviewService.createReview(spyDto)
-                }
+                val exception =
+                    assertThrows<BusinessException> {
+                        reviewService.createReview(spyDto)
+                    }
 
                 // Then
                 assertEquals(ErrorCode.EVALUATION_RESULT_ANSWER_CONFLICT, exception.errorCode)
@@ -975,10 +1032,11 @@ class ReviewServiceTest {
             fun `should throw exception when evaluation result list contains multiple answers for the same question`() {
                 // Given
                 val spyDto = spyk<ReviewCreateRequest>(mockCourseReviewCreateRequest)
-                val invalidEvaluationResultList = arrayOf(
-                    courseEvaluationQuestion1Answer1Id,
-                    courseEvaluationQuestion1Answer2Id,
-                ).toList()
+                val invalidEvaluationResultList =
+                    arrayOf(
+                        courseEvaluationQuestion1Answer1Id,
+                        courseEvaluationQuestion1Answer2Id,
+                    ).toList()
 
                 every {
                     spyDto.evaluationResultList
@@ -1008,11 +1066,11 @@ class ReviewServiceTest {
                     reviewRepository.save(
                         match {
                             it.targetId == mockCourseReviewCreateRequest.targetId &&
-                                    it.user.id == mockCourseReviewCreateRequest.userId &&
-                                    it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
-                                    it.score == mockCourseReviewCreateRequest.score &&
-                                    it.file.id == mockCourseReviewCreateRequest.fileMasterId
-                        }
+                                it.user.id == mockCourseReviewCreateRequest.userId &&
+                                it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
+                                it.score == mockCourseReviewCreateRequest.score &&
+                                it.file.id == mockCourseReviewCreateRequest.fileMasterId
+                        },
                     )
                 } returns mockReview
 
@@ -1029,10 +1087,10 @@ class ReviewServiceTest {
 
                 var counter = 0 // 호출 횟수 추적을 위한 변수
                 every {
-                    evaluationResultRepository.existsByReview_IdAndAnswer_Question_IdAndUser_Id(
-                        any(),
-                        any(),
-                        any()
+                    evaluationResultRepository.exists(
+                        reviewId = any(),
+                        questionId = any(),
+                        userId = any(),
                     )
                 } answers {
                     val innerQuestionId = secondArg<UUID>()
@@ -1040,29 +1098,33 @@ class ReviewServiceTest {
                     if (innerQuestionId == courseEvaluationQuestion1Id) {
                         counter++
                         return@answers when (counter) {
-                            1 -> false  // 첫 번째 호출
-                            2 -> true   // 두 번째 호출
+                            1 -> false // 첫 번째 호출
+                            2 -> true // 두 번째 호출
                             else -> true // 이후 호출 기본값
                         }
-                    } else false
+                    } else {
+                        false
+                    }
                 }
 
                 every {
                     evaluationResultRepository.save(
                         match {
                             it.review.id == reviewId
-                        }
+                        },
                     )
-                } returns mockk {
-                    every { id } returns UUID.randomUUID()
-                    every { review } returns mockReview
-                    every { user } returns mockUser
-                }
+                } returns
+                    mockk {
+                        every { id } returns UUID.randomUUID()
+                        every { review } returns mockReview
+                        every { user } returns mockUser
+                    }
 
                 // When
-                val exception = assertThrows<BusinessException> {
-                    reviewService.createReview(spyDto)
-                }
+                val exception =
+                    assertThrows<BusinessException> {
+                        reviewService.createReview(spyDto)
+                    }
 
                 // Then
                 assertEquals(ErrorCode.EVALUATION_RESULT_ANSWER_CONFLICT, exception.errorCode)
@@ -1072,23 +1134,28 @@ class ReviewServiceTest {
             @DisplayName("평가 타입에 맞지 않은 질문 답변을 이용하여 리뷰 생성 시 예외 발생")
             fun `should throw exception when evaluation result list contains mismatched question types`() {
                 // Given
-                val invalidEvaluationAnswer = mockk<EvaluationAnswer> {
-                    every { id } returns UUID.randomUUID()
-                    every { question } returns mockk<EvaluationQuestion> {
+                val invalidEvaluationAnswer =
+                    mockk<EvaluationAnswer> {
                         every { id } returns UUID.randomUUID()
-                        every { evaluation } returns mockk<Evaluation> {
-                            every { id } returns UUID.randomUUID()
-                            every { type } returns "OTHER_TYPE"
-                        }
-                        every { question } returns "INVALID_QUESTION"
+                        every { question } returns
+                            mockk<EvaluationQuestion> {
+                                every { id } returns UUID.randomUUID()
+                                every { evaluation } returns
+                                    mockk<Evaluation> {
+                                        every { id } returns UUID.randomUUID()
+                                        every { type } returns "OTHER_TYPE"
+                                    }
+                                every { question } returns "INVALID_QUESTION"
+                            }
+                        every { answer } returns "INVALID_ANSWER"
                     }
-                    every { answer } returns "INVALID_ANSWER"
-                }
-                val spyDto = spyk<ReviewCreateRequest>(mockCourseReviewCreateRequest) {
-                    every { evaluationResultList } returns arrayOf(
-                        invalidEvaluationAnswer.id!!
-                    ).toList()
-                }
+                val spyDto =
+                    spyk<ReviewCreateRequest>(mockCourseReviewCreateRequest) {
+                        every { evaluationResultList } returns
+                            arrayOf(
+                                invalidEvaluationAnswer.id!!,
+                            ).toList()
+                    }
 
                 every {
                     userRepository.findById(userId)
@@ -1116,9 +1183,10 @@ class ReviewServiceTest {
                 } returns Optional.of(invalidEvaluationAnswer)
 
                 // When
-                val exception = assertThrows<BusinessException> {
-                    reviewService.createReview(spyDto)
-                }
+                val exception =
+                    assertThrows<BusinessException> {
+                        reviewService.createReview(spyDto)
+                    }
 
                 // Then
                 assertEquals(ErrorCode.INVALID_EVALUATION_ANSWER, exception.errorCode)
@@ -1152,9 +1220,10 @@ class ReviewServiceTest {
                 } returns Optional.empty()
 
                 // When
-                val exception = assertThrows<BusinessException> {
-                    reviewService.createReview(spyDto)
-                }
+                val exception =
+                    assertThrows<BusinessException> {
+                        reviewService.createReview(spyDto)
+                    }
 
                 // Then
                 assertEquals(ErrorCode.NOT_FOUND_FILE_MASTER, exception.errorCode)
@@ -1169,10 +1238,11 @@ class ReviewServiceTest {
         @DisplayName("유효한 타겟 ID, TYPE 을 이용하여 리뷰 리스트 조회 테스트 성공")
         fun `should successfully retrieve review list with valid target ID and type`() {
             // Given
-            val mockGetReviewListRequest = mockk<GetReviewListRequest> {
-                every { targetId } returns courseId
-                every { targetType } returns TargetType.COURSE
-            }
+            val mockGetReviewListRequest =
+                mockk<GetReviewListRequest> {
+                    every { targetId } returns courseId
+                    every { targetType } returns TargetType.COURSE
+                }
 
             every {
                 courseRepository.existsById(courseId)
@@ -1180,16 +1250,18 @@ class ReviewServiceTest {
 
             every {
                 reviewRepository.findAllByTargetId(courseId)
-            } returns List(10) {
-                mockk<Review> {
-                    every { targetId } returns courseId
+            } returns
+                List(10) {
+                    mockk<Review> {
+                        every { targetId } returns courseId
+                    }
                 }
-            }
 
             // When
-            val result = assertDoesNotThrow<List<Review>> {
-                reviewService.getReviewList(mockGetReviewListRequest)
-            }
+            val result =
+                assertDoesNotThrow<List<Review>> {
+                    reviewService.getReviewList(mockGetReviewListRequest)
+                }
 
             // Then
             result.forEach {
