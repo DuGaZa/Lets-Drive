@@ -86,6 +86,11 @@ class FileService(
         return fileBytes
     }
 
+    /**
+     * 기본 프로필 이미지 파일 생성
+     * @param userId 사용자 UUID
+     * @return 생성된 FileMaster 엔티티
+     */
     @Transactional
     fun getDefaultImage(userId: UUID): FileMaster {
         val user = userService.getUserById(userId)

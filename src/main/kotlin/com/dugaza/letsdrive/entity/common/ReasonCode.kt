@@ -1,3 +1,6 @@
 package com.dugaza.letsdrive.entity.common
 
-enum class ReasonCode
+// todo: example
+enum class ReasonCode {
+    TEST,
+}

@@ -22,7 +22,6 @@ abstract class BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     var id: UUID? = null
-        protected set
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

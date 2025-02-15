@@ -1,3 +1,9 @@
 package com.dugaza.letsdrive.entity.community
 
-enum class BoardType
+// todo: example
+enum class BoardType {
+    FREE,
+    NOTICE,
+    QNA,
+    REVIEW,
+}

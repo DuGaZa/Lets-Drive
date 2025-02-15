@@ -4,10 +4,12 @@ import com.dugaza.letsdrive.entity.base.BaseEntity
 import com.dugaza.letsdrive.entity.file.FileMaster
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
+import jakarta.persistence.ConstraintMode
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
+import jakarta.persistence.ForeignKey
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
 import jakarta.persistence.OneToOne
@@ -33,7 +35,7 @@ class User(
     @Column(nullable = false)
     var nickname: String,
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "profile_image_id", nullable = true)
+    @JoinColumn(name = "profile_image_id", nullable = true, foreignKey = ForeignKey(ConstraintMode.NO_CONSTRAINT))
     var profileImage: FileMaster? = null,
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

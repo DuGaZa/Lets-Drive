@@ -51,6 +51,9 @@ dependencies {
     testImplementation(libs.junit.jupiter.api)
     testImplementation(libs.junit.jupiter.engine)
     testImplementation(libs.assertj.core)
+    testImplementation(libs.testcontainers)
+    testImplementation(libs.testcontainers.mysql)
+    testImplementation(libs.testcontainers.junit.jupiter)
 }
 
 allOpen {

@@ -1,3 +1,9 @@
 package com.dugaza.letsdrive.entity.common.evaluation
 
-enum class EvaluationType
+// todo: example
+enum class EvaluationType {
+    SELF,
+    PEER,
+    MANAGER,
+    CUSTOM,
+}
