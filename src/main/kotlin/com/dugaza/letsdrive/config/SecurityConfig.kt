@@ -21,6 +21,7 @@ class SecurityConfig(
     private val customOAuth2UserService: CustomOAuth2UserService,
     private val customAuthenticationHandler: CustomAuthenticationHandler,
     private val tokenService: TokenService,
+    private val securityProperties: SecurityProperties,
 ) {
     @Bean
     fun tokenAuthenticationFilter(): TokenAuthenticationFilter {
@@ -39,22 +40,12 @@ class SecurityConfig(
             }
             .authorizeHttpRequests { authorize ->
                 authorize
-                    .requestMatchers(
-                        "/",
-                        "/api/auth/users/login",
-                        "/error",
-                        "/api/mail/verify-email",
-                        "/api/token/refresh",
-                    ).permitAll()
-                    .requestMatchers(
-                        "/api/users/random-nickname",
-                        "/api/files/default-profile-image",
-                        "/api/users/change-email",
-                    ).hasAnyRole("USER", "UNVERIFIED_USER")
-                    .requestMatchers(
-                        "/api/admin/**",
-                    ).hasRole("ADMIN")
-                    .anyRequest().hasRole("USER")
+                    .requestMatchers(*securityProperties.permitAll.toTypedArray()).permitAll()
+                securityProperties.roleMappings.forEach { mapping ->
+                    authorize.requestMatchers(*mapping.urls.toTypedArray())
+                        .hasAnyRole(*mapping.roles.toTypedArray())
+                }
+                authorize.anyRequest().hasRole(securityProperties.defaultRole)
             }
             .oauth2Login { oauth2 ->
                 oauth2
@@ -69,7 +60,7 @@ class SecurityConfig(
             }
             .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
             .logout { logout ->
-                logout.logoutRequestMatcher(AntPathRequestMatcher("/logout"))
+                logout.logoutRequestMatcher(AntPathRequestMatcher("/api/auth/users/logout"))
                     .logoutSuccessUrl("/")
                     .permitAll()
             }
