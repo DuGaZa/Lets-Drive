@@ -62,12 +62,12 @@ class UserService(
                         }
                     }
                 }
-        mailService.sendMail(userId.toString(), user.nickname, email)
+        mailService.sendVerificationMail(userId, user.nickname, email)
     }
 
     @Transactional
-    fun verifyEmail(token: String): String? {
-        val (userId, email) = mailService.verifyEmail(token) ?: return null
+    fun verifyMail(token: String): String? {
+        val (userId, email) = mailService.verifyMail(token) ?: return null
         val user = getUserById(UUID.fromString(userId))
 
         user.changeEmail(email)

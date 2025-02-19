@@ -35,7 +35,7 @@ class CustomAuthenticationHandler(
             Cookie("ACCESS_TOKEN", accessToken).apply {
                 isHttpOnly = true
                 secure = request.isSecure
-                path = "/"
+                path = "/" // todo: 배포시 도메인으로 바꾸기
                 maxAge = tokenService.accessTokenDuration.toInt()
             }
         val refreshCookie =

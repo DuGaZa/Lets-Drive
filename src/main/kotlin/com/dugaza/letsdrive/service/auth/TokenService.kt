@@ -66,7 +66,7 @@ class TokenService(
     }
 
     /**
-     * Access token 검증: 유효하면 해당 userId 반환, 아니면 null
+     * Refresh token 검증: 유효하면 해당 userId 반환, 아니면 null
      */
     fun validateRefreshToken(token: String): UUID? {
         return redisUtil.getValue("refresh:$token")?.let { UUID.fromString(it) }

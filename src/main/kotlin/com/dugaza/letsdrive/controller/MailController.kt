@@ -13,11 +13,11 @@ class MailController(
     private val userService: UserService,
 ) {
     @GetMapping("/verify-email")
-    fun verifyEmail(
+    fun verifyMail(
         @RequestParam("token") token: String,
         model: Model,
     ): String {
-        val success = userService.verifyEmail(token)
+        val success = userService.verifyMail(token)
 
         return if (success != null) {
             model.addAttribute("nickname", success)
