@@ -1,7 +1,6 @@
 package com.dugaza.letsdrive.service.mail
 
 import com.dugaza.letsdrive.util.RedisUtil
-import jakarta.mail.internet.MimeMessage
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
@@ -22,66 +21,69 @@ class MailService(
     private val mailSender: JavaMailSender,
     private val redisUtil: RedisUtil,
 ) {
-    fun sendMail(
-        userId: String,
-        nickname: String,
-        toEmail: String,
-    ) {
-        if (redisUtil.getValue(toEmail) != null) {
-            redisUtil.delete(toEmail)
+    private val templateEngine: TemplateEngine =
+        TemplateEngine().apply {
+            val templateResolver =
+                ClassLoaderTemplateResolver().apply {
+                    prefix = "templates/"
+                    suffix = ".html"
+                    templateMode = TemplateMode.HTML
+                    isCacheable = false
+                }
+            setTemplateResolver(templateResolver)
         }
-        val message = createMailForm(userId, nickname, toEmail)
 
-        mailSender.send(message)
-    }
-
-    fun verifyEmail(token: String): Pair<String, String>? {
-        val dataMap = redisUtil.getHashValue(token, "userId", "toEmail") ?: return null
-        redisUtil.delete(token)
-
-        return Pair(dataMap["userId"]!!, dataMap["toEmail"]!!)
-    }
-
-    private fun createMailForm(
-        userId: String,
-        nickname: String,
-        toEmail: String,
-    ): MimeMessage {
-        val token = UUID.randomUUID().toString()
-        val dataMap = mapOf("userId" to userId, "toEmail" to toEmail)
-        redisUtil.setHashValueExpire(token, dataMap, duration, TimeUnit.MINUTES)
-
-        val subject = "안녕하세요, $nickname 님! Let's Drive 이메일 인증을 완료해주세요."
-        val htmlContent = setContext(nickname, "http://localhost:8080/api/mail/verify-email?token=$token")
+    fun sendMail(mailContent: MailContent) {
+        val context = Context().apply { setVariables(mailContent.contextVariables) }
+        val htmlContent = templateEngine.process(mailContent.templateName, context)
 
         val message = mailSender.createMimeMessage()
         val helper = MimeMessageHelper(message, true, "UTF-8")
 
         helper.setFrom(senderEmail, "드가자 - 드라이브가자(Let's Drive)")
-
-        helper.setTo(toEmail)
-        helper.setSubject(subject)
+        helper.setTo(mailContent.toEmail)
+        helper.setSubject(mailContent.subject)
         helper.setText(htmlContent, true)
 
-        return message
+        mailSender.send(message)
     }
 
-    private fun setContext(
+    fun sendVerificationMail(
+        userId: UUID,
         nickname: String,
-        verifyLink: String,
-    ): String {
-        val context = Context()
-        val templateEngine = TemplateEngine()
-        val templateResolver = ClassLoaderTemplateResolver()
+        toEmail: String,
+    ) {
+        redisUtil.getValue(toEmail)?.let { redisUtil.delete(it) }
 
-        context.setVariables(mapOf("nickname" to nickname, "verifyLink" to verifyLink))
-        templateResolver.prefix = "templates/"
-        templateResolver.suffix = ".html"
-        templateResolver.templateMode = TemplateMode.HTML
-        templateResolver.isCacheable = false
+        val token = UUID.randomUUID().toString()
+        val dataMap = mapOf("userId" to userId.toString(), "toEmail" to toEmail)
+        redisUtil.setHashValueExpire(token, dataMap, duration, TimeUnit.MINUTES)
 
-        templateEngine.setTemplateResolver(templateResolver)
+        val subject = "안녕하세요, $nickname 님! Let's Drive 이메일 인증을 완료해주세요."
+        val verifyLink = "http://localhost:8080/api/mail/verify-email?token=$token"
 
-        return templateEngine.process("verify-email-template", context)
+        val mailContent =
+            MailContent(
+                toEmail = toEmail,
+                subject = subject,
+                templateName = "verify-email-template",
+                contextVariables = mapOf("nickname" to nickname, "verifyLink" to verifyLink),
+            )
+
+        sendMail(mailContent)
+    }
+
+    fun verifyMail(token: String): Pair<String, String>? {
+        val dataMap = redisUtil.getHashValue(token, "userId", "toEmail") ?: return null
+        redisUtil.delete(token)
+
+        return Pair(dataMap["userId"]!!, dataMap["toEmail"]!!)
     }
 }
+
+data class MailContent(
+    val toEmail: String,
+    val subject: String,
+    val templateName: String,
+    val contextVariables: Map<String, Any>,
+)

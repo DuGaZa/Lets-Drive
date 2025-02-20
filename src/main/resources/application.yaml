@@ -61,6 +61,24 @@ spring:
         email: ${SENDER_EMAIL}
     auth-code-expiration-millis: 1800000  # 30 * 60 * 1000 == 30?
 
+security:
+  permit-all:
+    - /
+    - /api/auth/users/login
+    - /error
+    - /api/mail/verify-email
+    - /api/token/refresh
+  role-mappings:
+    - roles: [USER, UNVERIFIED_USER]
+      urls:
+        - /api/users/random-nickname
+        - /api/files/default-profile-image
+        - /api/users/change-email
+    - roles: [ADMIN]
+      urls:
+        - /api/admin/**
+  default-role: USER
+
 file:
   max-size: ${FILE_MAX_SIZE}
   image-extensions: ${FILE_IMAGE_EXT}
