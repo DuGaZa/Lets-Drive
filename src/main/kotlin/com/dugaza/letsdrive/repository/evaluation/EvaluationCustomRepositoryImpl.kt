@@ -3,6 +3,7 @@ package com.dugaza.letsdrive.repository.evaluation
 import com.dugaza.letsdrive.entity.common.evaluation.Evaluation
 import com.dugaza.letsdrive.entity.common.evaluation.QEvaluation
 import com.querydsl.jpa.impl.JPAQueryFactory
+import java.util.UUID
 
 class EvaluationCustomRepositoryImpl(
     private val jpaQueryFactory: JPAQueryFactory,
@@ -12,6 +13,14 @@ class EvaluationCustomRepositoryImpl(
         return jpaQueryFactory
             .select(evaluation)
             .where(evaluation.type.eq(type))
+            .fetchOne()
+    }
+
+    override fun find(id: UUID): Evaluation? {
+        val evaluation = QEvaluation.evaluation
+        return jpaQueryFactory
+            .select(evaluation)
+            .where(evaluation.id.eq(id))
             .fetchOne()
     }
 
