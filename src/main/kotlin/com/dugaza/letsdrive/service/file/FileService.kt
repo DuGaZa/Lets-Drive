@@ -116,11 +116,6 @@ class FileService(
         return fileMaster
     }
 
-    fun getFileMaster(fileMasterId: UUID): FileMaster {
-        return fileMasterRepository.findById(fileMasterId)
-            .orElseThrow { BusinessException(ErrorCode.NOT_FOUND_FILE_MASTER) }
-    }
-
     /**
      * 단일 파일 저장 처리
      * @param fileMaster 파일 마스터 엔티티
