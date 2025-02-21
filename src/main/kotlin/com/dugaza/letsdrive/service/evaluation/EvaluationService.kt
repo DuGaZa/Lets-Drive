@@ -1,4 +1,4 @@
-package com.dugaza.letsdrive.service
+package com.dugaza.letsdrive.service.evaluation
 
 import com.dugaza.letsdrive.entity.common.Review
 import com.dugaza.letsdrive.entity.common.evaluation.Evaluation

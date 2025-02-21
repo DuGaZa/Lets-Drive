@@ -13,6 +13,7 @@ import com.dugaza.letsdrive.repository.evaluation.EvaluationAnswerRepository
 import com.dugaza.letsdrive.repository.evaluation.EvaluationQuestionRepository
 import com.dugaza.letsdrive.repository.evaluation.EvaluationRepository
 import com.dugaza.letsdrive.repository.evaluation.EvaluationResultRepository
+import com.dugaza.letsdrive.service.evaluation.EvaluationService
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK

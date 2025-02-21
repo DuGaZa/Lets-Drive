@@ -1,4 +1,4 @@
-package com.dugaza.letsdrive.service
+package com.dugaza.letsdrive.service.review
 
 import com.dugaza.letsdrive.dto.review.GetReviewListRequest
 import com.dugaza.letsdrive.dto.review.ModifyReviewRequest
@@ -8,6 +8,9 @@ import com.dugaza.letsdrive.entity.common.evaluation.Evaluation
 import com.dugaza.letsdrive.exception.BusinessException
 import com.dugaza.letsdrive.exception.ErrorCode
 import com.dugaza.letsdrive.repository.review.ReviewRepository
+import com.dugaza.letsdrive.service.TargetType
+import com.dugaza.letsdrive.service.course.CourseService
+import com.dugaza.letsdrive.service.evaluation.EvaluationService
 import com.dugaza.letsdrive.service.file.FileService
 import com.dugaza.letsdrive.service.user.UserService
 import org.springframework.stereotype.Service

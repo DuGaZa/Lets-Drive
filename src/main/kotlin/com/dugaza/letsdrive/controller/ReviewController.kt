@@ -5,8 +5,8 @@ import com.dugaza.letsdrive.dto.review.GetReviewListRequest
 import com.dugaza.letsdrive.dto.review.ModifyReviewRequest
 import com.dugaza.letsdrive.dto.review.ReviewCreateRequest
 import com.dugaza.letsdrive.dto.review.ReviewResponse
-import com.dugaza.letsdrive.service.EvaluationService
-import com.dugaza.letsdrive.service.ReviewService
+import com.dugaza.letsdrive.service.evaluation.EvaluationService
+import com.dugaza.letsdrive.service.review.ReviewService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

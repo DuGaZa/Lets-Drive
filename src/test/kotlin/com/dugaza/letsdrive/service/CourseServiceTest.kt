@@ -5,6 +5,7 @@ import com.dugaza.letsdrive.entity.user.AuthProvider
 import com.dugaza.letsdrive.entity.user.User
 import com.dugaza.letsdrive.exception.BusinessException
 import com.dugaza.letsdrive.repository.course.CourseRepository
+import com.dugaza.letsdrive.service.course.CourseService
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK

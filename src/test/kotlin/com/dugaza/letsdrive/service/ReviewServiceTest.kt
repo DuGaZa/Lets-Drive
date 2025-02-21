@@ -22,6 +22,9 @@ import com.dugaza.letsdrive.repository.file.FileDetailRepository
 import com.dugaza.letsdrive.repository.file.FileMasterRepository
 import com.dugaza.letsdrive.repository.review.ReviewRepository
 import com.dugaza.letsdrive.repository.user.UserRepository
+import com.dugaza.letsdrive.service.course.CourseService
+import com.dugaza.letsdrive.service.evaluation.EvaluationService
+import com.dugaza.letsdrive.service.review.ReviewService
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
