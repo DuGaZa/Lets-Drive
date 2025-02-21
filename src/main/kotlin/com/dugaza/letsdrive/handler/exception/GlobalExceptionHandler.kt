@@ -1,6 +1,8 @@
-package com.dugaza.letsdrive.exception
+package com.dugaza.letsdrive.handler.exception
 
 import com.dugaza.letsdrive.dto.ErrorResponse
+import com.dugaza.letsdrive.exception.BusinessException
+import com.dugaza.letsdrive.exception.ErrorCode
 import com.dugaza.letsdrive.logger
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import org.springframework.http.ResponseEntity
