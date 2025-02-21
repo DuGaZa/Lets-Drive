@@ -39,6 +39,7 @@ import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -280,7 +281,6 @@ class ReviewServiceTest {
         val realCourseReviewCreateRequest =
             ReviewCreateRequest(
                 targetId = courseId,
-                userId = userId,
                 evaluationId = evaluationId,
                 targetType = TargetType.COURSE,
                 evaluationResultList =
@@ -566,7 +566,7 @@ class ReviewServiceTest {
                     reviewRepository.save(
                         match {
                             it.targetId == mockCourseReviewCreateRequest.targetId &&
-                                it.user.id == mockCourseReviewCreateRequest.userId &&
+                                it.user.id == mockUser.id &&
                                 it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
                                 it.score == mockCourseReviewCreateRequest.score &&
                                 it.file.id == mockCourseReviewCreateRequest.fileMasterId
@@ -600,7 +600,7 @@ class ReviewServiceTest {
                 // When
                 val result =
                     assertDoesNotThrow<Review> {
-                        reviewService.createReview(mockCourseReviewCreateRequest)
+                        reviewService.createReview(mockCourseReviewCreateRequest, mockUser.id!!)
                     }
 
                 // Then
@@ -644,7 +644,7 @@ class ReviewServiceTest {
                 // When
                 val exception =
                     assertThrows<BusinessException> {
-                        reviewService.createReview(dtoSpy)
+                        reviewService.createReview(dtoSpy, mockUser.id!!)
                     }
 
                 // Then
@@ -685,7 +685,7 @@ class ReviewServiceTest {
                     reviewRepository.save(
                         match {
                             it.targetId == mockCourseReviewCreateRequest.targetId &&
-                                it.user.id == mockCourseReviewCreateRequest.userId &&
+                                it.user.id == mockUser.id &&
                                 it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
                                 it.score == mockCourseReviewCreateRequest.score &&
                                 it.file.id == mockCourseReviewCreateRequest.fileMasterId
@@ -719,7 +719,7 @@ class ReviewServiceTest {
                 // When
                 val result =
                     assertDoesNotThrow<Review> {
-                        reviewService.createReview(mockCourseReviewCreateRequest)
+                        reviewService.createReview(mockCourseReviewCreateRequest, mockUser.id!!)
                     }
 
                 // Then
@@ -734,9 +734,6 @@ class ReviewServiceTest {
                 val invalidUserUUID = UUID.randomUUID()
 
                 val dtoSpy = spyk<ReviewCreateRequest>(mockCourseReviewCreateRequest)
-                every {
-                    dtoSpy.userId
-                } returns invalidUserUUID
 
                 every {
                     userRepository.findUserById(invalidUserUUID)
@@ -745,7 +742,7 @@ class ReviewServiceTest {
                 // When
                 val exception =
                     assertThrows<BusinessException> {
-                        reviewService.createReview(dtoSpy)
+                        reviewService.createReview(dtoSpy, invalidUserUUID)
                     }
 
                 // Then
@@ -786,7 +783,7 @@ class ReviewServiceTest {
                     reviewRepository.save(
                         match {
                             it.targetId == mockCourseReviewCreateRequest.targetId &&
-                                it.user.id == mockCourseReviewCreateRequest.userId &&
+                                it.user.id == mockUser.id &&
                                 it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
                                 it.score == mockCourseReviewCreateRequest.score &&
                                 it.file.id == mockCourseReviewCreateRequest.fileMasterId
@@ -820,7 +817,7 @@ class ReviewServiceTest {
                 // When
                 val result =
                     assertDoesNotThrow<Review> {
-                        reviewService.createReview(mockCourseReviewCreateRequest)
+                        reviewService.createReview(mockCourseReviewCreateRequest, mockUser.id!!)
                     }
 
                 // Then
@@ -852,7 +849,7 @@ class ReviewServiceTest {
                 // When
                 val exception =
                     assertThrows<BusinessException> {
-                        reviewService.createReview(dtoSpy)
+                        reviewService.createReview(dtoSpy, mockUser.id!!)
                     }
 
                 // Then
@@ -904,7 +901,7 @@ class ReviewServiceTest {
                     reviewRepository.save(
                         match {
                             it.targetId == mockCourseReviewCreateRequest.targetId &&
-                                it.user.id == mockCourseReviewCreateRequest.userId &&
+                                it.user.id == mockUser.id &&
                                 it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
                                 it.score == mockCourseReviewCreateRequest.score &&
                                 it.file.id == mockCourseReviewCreateRequest.fileMasterId
@@ -943,7 +940,7 @@ class ReviewServiceTest {
                 // When
                 val result =
                     assertDoesNotThrow<Review> {
-                        reviewService.createReview(mockCourseReviewCreateRequest)
+                        reviewService.createReview(mockCourseReviewCreateRequest, mockUser.id!!)
                     }
 
                 // Then
@@ -991,7 +988,7 @@ class ReviewServiceTest {
                     reviewRepository.save(
                         match {
                             it.targetId == mockCourseReviewCreateRequest.targetId &&
-                                it.user.id == mockCourseReviewCreateRequest.userId &&
+                                it.user.id == mockUser.id &&
                                 it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
                                 it.score == mockCourseReviewCreateRequest.score &&
                                 it.file.id == mockCourseReviewCreateRequest.fileMasterId
@@ -1032,6 +1029,10 @@ class ReviewServiceTest {
                 }
 
                 every {
+                    userRepository.findUserById(userId)
+                } returns mockUser
+
+                every {
                     evaluationResultRepository.save(
                         match {
                             it.review.id == reviewId
@@ -1047,7 +1048,7 @@ class ReviewServiceTest {
                 // When
                 val exception =
                     assertThrows<BusinessException> {
-                        reviewService.createReview(spyDto)
+                        reviewService.createReview(spyDto, mockUser.id!!)
                     }
 
                 // Then
@@ -1068,10 +1069,6 @@ class ReviewServiceTest {
                 every {
                     spyDto.evaluationResultList
                 } returns invalidEvaluationResultList
-
-                every {
-                    userRepository.findUserById(userId)
-                } returns mockUser
 
                 every {
                     evaluationRepository.find(
@@ -1095,7 +1092,7 @@ class ReviewServiceTest {
                     reviewRepository.save(
                         match {
                             it.targetId == mockCourseReviewCreateRequest.targetId &&
-                                it.user.id == mockCourseReviewCreateRequest.userId &&
+                                it.user.id == mockUser.id &&
                                 it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
                                 it.score == mockCourseReviewCreateRequest.score &&
                                 it.file.id == mockCourseReviewCreateRequest.fileMasterId
@@ -1137,6 +1134,10 @@ class ReviewServiceTest {
                 }
 
                 every {
+                    userRepository.findUserById(userId)
+                } returns mockUser
+
+                every {
                     evaluationResultRepository.save(
                         match {
                             it.review.id == reviewId
@@ -1152,7 +1153,7 @@ class ReviewServiceTest {
                 // When
                 val exception =
                     assertThrows<BusinessException> {
-                        reviewService.createReview(spyDto)
+                        reviewService.createReview(spyDto, mockUser.id!!)
                     }
 
                 // Then
@@ -1216,7 +1217,7 @@ class ReviewServiceTest {
                 // When
                 val exception =
                     assertThrows<BusinessException> {
-                        reviewService.createReview(spyDto)
+                        reviewService.createReview(spyDto, mockUser.id!!)
                     }
 
                 // Then
@@ -1255,7 +1256,7 @@ class ReviewServiceTest {
                 // When
                 val exception =
                     assertThrows<BusinessException> {
-                        reviewService.createReview(spyDto)
+                        reviewService.createReview(spyDto, mockUser.id!!)
                     }
 
                 // Then
