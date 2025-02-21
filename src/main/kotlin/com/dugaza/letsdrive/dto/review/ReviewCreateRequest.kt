@@ -7,7 +7,7 @@ class ReviewCreateRequest(
 //    @field:CustomValidator.NotNull(message = "targetId는 필수 입력값입니다.")
     val targetId: UUID,
 //    @field:CustomValidator.NotNull(message = "userId는 필수 입력값입니다.")
-    val userId: UUID,
+//    val userId: UUID,
 //    @field:CustomValidator.NotNull(message = "evaluationId은 필수 입력값입니다.")
     val evaluationId: UUID,
 //    @field:ValidEnum(

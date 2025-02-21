@@ -59,8 +59,8 @@ class ReviewService(
      * 모든 데이터베이스 작업이 하나의 트랜잭션 내에서 실행됩니다.
      */
     @Transactional
-    fun createReview(request: ReviewCreateRequest): Review {
-        val user = userService.getUserById(request.userId)
+    fun createReview(request: ReviewCreateRequest, userId: UUID): Review {
+        val user = userService.getUserById(userId)
         val evaluation = evaluationService.getEvaluationById(request.evaluationId)
         val fileMaster = fileService.getFileMaster(request.fileMasterId)
 
