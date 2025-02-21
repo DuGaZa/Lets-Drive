@@ -22,9 +22,13 @@ import com.dugaza.letsdrive.repository.file.FileDetailRepository
 import com.dugaza.letsdrive.repository.file.FileMasterRepository
 import com.dugaza.letsdrive.repository.review.ReviewRepository
 import com.dugaza.letsdrive.repository.user.UserRepository
+import com.dugaza.letsdrive.service.auth.TokenService
 import com.dugaza.letsdrive.service.course.CourseService
 import com.dugaza.letsdrive.service.evaluation.EvaluationService
+import com.dugaza.letsdrive.service.file.FileService
+import com.dugaza.letsdrive.service.mail.MailService
 import com.dugaza.letsdrive.service.review.ReviewService
+import com.dugaza.letsdrive.service.user.UserService
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -74,6 +78,12 @@ class ReviewServiceTest {
 
     @MockK
     private lateinit var userRepository: UserRepository
+
+    @InjectMockKs
+    private var mailService: MailService = mockk()
+
+    @InjectMockKs
+    private var tokenService: TokenService = mockk()
 
     @InjectMockKs
     private var courseService: CourseService = mockk()
@@ -129,6 +139,8 @@ class ReviewServiceTest {
         userService =
             UserService(
                 userRepository = userRepository,
+                mailService = mailService,
+                tokenService = tokenService,
             )
         courseService =
             CourseService(
@@ -146,7 +158,6 @@ class ReviewServiceTest {
                 fileDetailRepository = fileDetailRepository,
                 fileMasterRepository = fileMasterRepository,
                 userService = userService,
-                fileProperties = fileProperties,
             )
         reviewService =
             ReviewService(
@@ -180,7 +191,6 @@ class ReviewServiceTest {
                 every { provider } returns AuthProvider.GOOGLE
                 every { providerId } returns userProviderId
                 every { nickname } returns "TEST_USER_NICKNAME"
-                every { phoneNumber } returns "01012341234"
             }
 
         mockCourse =
@@ -539,12 +549,14 @@ class ReviewServiceTest {
                 }
 
                 every {
-                    userRepository.findById(userId)
-                } returns Optional.of(mockUser)
+                    userRepository.findUserById(userId)
+                } returns mockUser
 
                 every {
-                    evaluationRepository.findById(evaluationId)
-                } returns Optional.of(mockEvaluation)
+                    evaluationRepository.find(
+                        id = evaluationId
+                    )
+                } returns mockEvaluation
 
                 every {
                     fileMasterRepository.findById(fileMasterId)
@@ -608,12 +620,14 @@ class ReviewServiceTest {
                 } returns invalidCourseUUID
 
                 every {
-                    userRepository.findById(userId)
-                } returns Optional.of(mockUser)
+                    userRepository.findUserById(userId)
+                } returns mockUser
 
                 every {
-                    evaluationRepository.findById(evaluationId)
-                } returns Optional.of(mockEvaluation)
+                    evaluationRepository.find(
+                        id = evaluationId
+                    )
+                } returns mockEvaluation
 
                 every {
                     fileMasterRepository.findById(fileMasterId)
@@ -646,12 +660,14 @@ class ReviewServiceTest {
             fun `should create review successfully when given valid user ID`() {
                 // Given
                 every {
-                    userRepository.findById(userId)
-                } returns Optional.of(mockUser)
+                    userRepository.findUserById(userId)
+                } returns mockUser
 
                 every {
-                    evaluationRepository.findById(evaluationId)
-                } returns Optional.of(mockEvaluation)
+                    evaluationRepository.find(
+                        id = evaluationId
+                    )
+                } returns mockEvaluation
 
                 every {
                     fileMasterRepository.findById(fileMasterId)
@@ -723,8 +739,8 @@ class ReviewServiceTest {
                 } returns invalidUserUUID
 
                 every {
-                    userRepository.findById(invalidUserUUID)
-                } returns Optional.empty()
+                    userRepository.findUserById(invalidUserUUID)
+                } returns null
 
                 // When
                 val exception =
@@ -745,12 +761,14 @@ class ReviewServiceTest {
             fun `should create review successfully when given valid evaluation ID`() {
                 // Given
                 every {
-                    userRepository.findById(userId)
-                } returns Optional.of(mockUser)
+                    userRepository.findUserById(userId)
+                } returns mockUser
 
                 every {
-                    evaluationRepository.findById(evaluationId)
-                } returns Optional.of(mockEvaluation)
+                    evaluationRepository.find(
+                        id = evaluationId
+                    )
+                } returns mockEvaluation
 
                 every {
                     fileMasterRepository.findById(fileMasterId)
@@ -822,12 +840,14 @@ class ReviewServiceTest {
                 } returns invalidEvaluationUUID
 
                 every {
-                    userRepository.findById(userId)
-                } returns Optional.of(mockUser)
+                    userRepository.findUserById(userId)
+                } returns mockUser
 
                 every {
-                    evaluationRepository.findById(invalidEvaluationUUID)
-                } returns Optional.empty()
+                    evaluationRepository.find(
+                        id = invalidEvaluationUUID
+                    )
+                } returns null
 
                 // When
                 val exception =
@@ -859,12 +879,14 @@ class ReviewServiceTest {
                 } returns mockEvaluationResultList
 
                 every {
-                    userRepository.findById(userId)
-                } returns Optional.of(mockUser)
+                    userRepository.findUserById(userId)
+                } returns mockUser
 
                 every {
-                    evaluationRepository.findById(evaluationId)
-                } returns Optional.of(mockEvaluation)
+                    evaluationRepository.find(
+                        id = evaluationId
+                    )
+                } returns mockEvaluation
 
                 every {
                     fileMasterRepository.findById(fileMasterId)
@@ -944,12 +966,14 @@ class ReviewServiceTest {
                 } returns invalidEvaluationResultList
 
                 every {
-                    userRepository.findById(userId)
-                } returns Optional.of(mockUser)
+                    userRepository.findUserById(userId)
+                } returns mockUser
 
                 every {
-                    evaluationRepository.findById(evaluationId)
-                } returns Optional.of(mockEvaluation)
+                    evaluationRepository.find(
+                        id = evaluationId
+                    )
+                } returns mockEvaluation
 
                 every {
                     fileMasterRepository.findById(fileMasterId)
@@ -1046,12 +1070,14 @@ class ReviewServiceTest {
                 } returns invalidEvaluationResultList
 
                 every {
-                    userRepository.findById(userId)
-                } returns Optional.of(mockUser)
+                    userRepository.findUserById(userId)
+                } returns mockUser
 
                 every {
-                    evaluationRepository.findById(evaluationId)
-                } returns Optional.of(mockEvaluation)
+                    evaluationRepository.find(
+                        id = evaluationId
+                    )
+                } returns mockEvaluation
 
                 every {
                     fileMasterRepository.findById(fileMasterId)
@@ -1161,12 +1187,14 @@ class ReviewServiceTest {
                     }
 
                 every {
-                    userRepository.findById(userId)
-                } returns Optional.of(mockUser)
+                    userRepository.findUserById(userId)
+                } returns mockUser
 
                 every {
-                    evaluationRepository.findById(evaluationId)
-                } returns Optional.of(mockEvaluation)
+                    evaluationRepository.find(
+                        id = evaluationId
+                    )
+                } returns mockEvaluation
 
                 every {
                     fileMasterRepository.findById(fileMasterId)
@@ -1211,12 +1239,14 @@ class ReviewServiceTest {
                 } returns invalidFileMasterUUID
 
                 every {
-                    userRepository.findById(userId)
-                } returns Optional.of(mockUser)
+                    userRepository.findUserById(userId)
+                } returns mockUser
 
                 every {
-                    evaluationRepository.findById(evaluationId)
-                } returns Optional.of(mockEvaluation)
+                    evaluationRepository.find(
+                        id = evaluationId
+                    )
+                } returns mockEvaluation
 
                 every {
                     fileMasterRepository.findById(eq(invalidFileMasterUUID))

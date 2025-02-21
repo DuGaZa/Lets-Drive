@@ -230,10 +230,9 @@ class EvaluationService(
      * @throws BusinessException ErrorCode.EVALUATION_NOT_FOUND - 평가를 찾을 수 없는 경우
      */
     fun getEvaluationById(evaluationId: UUID): Evaluation {
-        return evaluationRepository.findById(evaluationId)
-            .orElseThrow {
-                BusinessException(ErrorCode.EVALUATION_NOT_FOUND)
-            }
+        return evaluationRepository.find(
+            id = evaluationId,
+        ) ?: throw BusinessException(ErrorCode.EVALUATION_NOT_FOUND)
     }
 
     /**

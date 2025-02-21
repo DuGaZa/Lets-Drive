@@ -45,7 +45,6 @@ class CourseServiceTest {
                 every { provider } returns AuthProvider.GOOGLE
                 every { providerId } returns UUID.randomUUID().toString()
                 every { nickname } returns "mockNickname"
-                every { phoneNumber } returns "01012341234"
             }
 
         mockCourse1 =
