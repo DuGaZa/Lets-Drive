@@ -8,6 +8,8 @@ import com.dugaza.letsdrive.entity.common.evaluation.Evaluation
 import com.dugaza.letsdrive.exception.BusinessException
 import com.dugaza.letsdrive.exception.ErrorCode
 import com.dugaza.letsdrive.repository.review.ReviewRepository
+import com.dugaza.letsdrive.service.file.FileService
+import com.dugaza.letsdrive.service.user.UserService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
