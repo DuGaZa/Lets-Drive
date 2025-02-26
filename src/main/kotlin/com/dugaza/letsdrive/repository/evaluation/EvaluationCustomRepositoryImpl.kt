@@ -17,6 +17,7 @@ class EvaluationCustomRepositoryImpl(
         val evaluation = QEvaluation.evaluation
         return jpaQueryFactory
             .select(evaluation)
+            .from(evaluation)
             .where(
                 evaluation.id.eqIfNotNull(id),
                 evaluation.type.eqIfNotNull(type)
