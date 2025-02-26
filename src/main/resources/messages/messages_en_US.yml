@@ -29,6 +29,7 @@ VALID:
 AUTH:
   001: "유효하지 않은 리프레쉬 토큰입니다."
   002: "유효하지 않은 디바이스 아이디입니다."
+  003: "Access denied. Please check your permissions and try again."
 
 EVALUATION:
   001: "Evaluation not found."
