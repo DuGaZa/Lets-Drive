@@ -30,8 +30,7 @@ class ReviewController(
     @PostMapping
     fun registrationReview(
         @RequestBody @Valid request: ReviewCreateRequest,
-        @AuthenticationPrincipal
-        user: CustomOAuth2User,
+        @AuthenticationPrincipal user: CustomOAuth2User,
     ): ResponseEntity<ReviewResponse> {
         val createdReview = reviewService.createReview(request, user.userId)
         val resultList =
@@ -67,11 +66,15 @@ class ReviewController(
     @PatchMapping
     fun modifyReview(
         @RequestBody @Valid request: ModifyReviewRequest,
+        @AuthenticationPrincipal user: CustomOAuth2User,
     ): ResponseEntity<ReviewResponse> {
-        val modifiedReview = reviewService.modifyReview(request)
+        val modifiedReview = reviewService.modifyReview(
+            request = request,
+            user = user,
+        )
         val resultList =
             evaluationService.getEvaluationResultListByReviewId(
-                userId = request.userId,
+                userId = user.userId,
                 reviewId = modifiedReview.id!!,
             )
         return ResponseEntity.ok(
@@ -85,6 +88,7 @@ class ReviewController(
     @DeleteMapping
     fun deleteReview(
         @RequestBody @Valid request: DeleteReviewRequest,
+        @AuthenticationPrincipal user: CustomOAuth2User,
     ): ResponseEntity<Unit> {
         reviewService.deleteReview(
             userId = request.userId,
