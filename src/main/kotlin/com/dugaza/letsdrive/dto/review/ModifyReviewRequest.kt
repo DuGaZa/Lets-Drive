@@ -6,7 +6,7 @@ class ModifyReviewRequest(
 //    @field:CustomValidator.NotBlank(message = "reviewId는 필수 입력값입니다.")
     val reviewId: UUID,
 //    @field:CustomValidator.NotBlank(message = "reviewId는 필수 입력값입니다.")
-    val userId: UUID,
+//    val userId: UUID,
 //    @field:CustomValidator.NotBlank(message = "evaluationResultList는 필수 입력값입니다.")
     val evaluationResultList: List<UUID>,
 //    @field:CustomValidator.NotBlank(message = "score는 필수 입력값입니다.")
