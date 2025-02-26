@@ -55,6 +55,7 @@ enum class ErrorCode(
     // Auth Error
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH.001"),
     INVALID_DEVICE_ID(HttpStatus.BAD_REQUEST, "AUTH.002"),
+    UNAUTHORIZED_ACCESS(HttpStatus.FORBIDDEN, "AUTH.003"),
 
     // For test
     FOO(HttpStatus.INTERNAL_SERVER_ERROR, "FOO.001"),
