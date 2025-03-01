@@ -171,7 +171,7 @@ class ReviewService(
 
         answerList.forEach {
             evaluationService.updateEvaluationResult(
-                user = userService.getUserById(user.userId),
+                user = review.user,
                 review = review,
                 answer = it,
             )
