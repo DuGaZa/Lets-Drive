@@ -3,6 +3,7 @@ package com.dugaza.letsdrive.repository.evaluation
 import com.dugaza.letsdrive.entity.common.evaluation.EvaluationResult
 import com.dugaza.letsdrive.entity.common.evaluation.QEvaluationResult
 import com.querydsl.jpa.impl.JPAQueryFactory
+import java.time.LocalDateTime
 import java.util.UUID
 
 class EvaluationResultCustomRepositoryImpl(
@@ -61,7 +62,8 @@ class EvaluationResultCustomRepositoryImpl(
     override fun delete(reviewId: UUID) {
         val evaluationResult = QEvaluationResult.evaluationResult
         jpaQueryFactory
-            .delete(evaluationResult)
+            .update(evaluationResult)
+            .set(evaluationResult.deletedAt, LocalDateTime.now())
             .where(evaluationResult.review.id.eq(reviewId))
             .execute()
     }
