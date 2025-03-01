@@ -92,7 +92,7 @@ class ReviewController(
         @AuthenticationPrincipal user: CustomOAuth2User,
     ): ResponseEntity<Unit> {
         reviewService.deleteReview(
-            userId = user.userId,
+            user = user,
             reviewId = reviewId,
         )
 

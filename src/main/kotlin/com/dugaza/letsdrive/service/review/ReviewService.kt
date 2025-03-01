@@ -207,10 +207,14 @@ class ReviewService(
      */
     @Transactional
     fun deleteReview(
-        userId: UUID,
+        user: CustomOAuth2User,
         reviewId: UUID,
     ) {
         checkExistsReview(reviewId)
+        checkReviewPermission(
+            reviewId = reviewId,
+            user = user
+        )
         // 1. evaluationResult 삭제
         evaluationService.deleteEvaluationResultByReviewId(reviewId)
         // 2. review 삭제
