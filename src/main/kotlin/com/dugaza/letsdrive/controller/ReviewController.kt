@@ -1,6 +1,5 @@
 package com.dugaza.letsdrive.controller
 
-import com.dugaza.letsdrive.dto.review.DeleteReviewRequest
 import com.dugaza.letsdrive.dto.review.GetReviewListRequest
 import com.dugaza.letsdrive.dto.review.ModifyReviewRequest
 import com.dugaza.letsdrive.dto.review.ReviewCreateRequest
@@ -19,7 +18,9 @@ import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 
 @RestController
 @RequestMapping("/api/reviews")
@@ -87,12 +88,12 @@ class ReviewController(
 
     @DeleteMapping
     fun deleteReview(
-        @RequestBody @Valid request: DeleteReviewRequest,
+        @RequestParam reviewId: UUID,
         @AuthenticationPrincipal user: CustomOAuth2User,
     ): ResponseEntity<Unit> {
         reviewService.deleteReview(
-            userId = request.userId,
-            reviewId = request.reviewId,
+            userId = user.userId,
+            reviewId = reviewId,
         )
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
