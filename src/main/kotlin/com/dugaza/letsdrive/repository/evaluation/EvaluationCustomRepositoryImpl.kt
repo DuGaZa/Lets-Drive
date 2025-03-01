@@ -12,7 +12,7 @@ class EvaluationCustomRepositoryImpl(
 ) : EvaluationCustomRepository {
     override fun find(
         id: UUID?,
-        type: String?
+        type: String?,
     ): Evaluation? {
         val evaluation = QEvaluation.evaluation
         return jpaQueryFactory
@@ -20,7 +20,7 @@ class EvaluationCustomRepositoryImpl(
             .from(evaluation)
             .where(
                 evaluation.id.eqIfNotNull(id),
-                evaluation.type.eqIfNotNull(type)
+                evaluation.type.eqIfNotNull(type),
             )
             .fetchOne()
     }

@@ -10,7 +10,6 @@ import com.dugaza.letsdrive.entity.common.evaluation.EvaluationQuestion
 import com.dugaza.letsdrive.entity.course.Course
 import com.dugaza.letsdrive.entity.file.FileMaster
 import com.dugaza.letsdrive.entity.user.AuthProvider
-import com.dugaza.letsdrive.entity.user.CustomOAuth2User
 import com.dugaza.letsdrive.entity.user.User
 import com.dugaza.letsdrive.exception.BusinessException
 import com.dugaza.letsdrive.exception.ErrorCode
@@ -40,14 +39,11 @@ import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.security.core.authority.SimpleGrantedAuthority
-import java.util.Collections
 import java.util.Optional
 import java.util.UUID
 
@@ -557,7 +553,7 @@ class ReviewServiceTest {
 
                 every {
                     evaluationRepository.find(
-                        id = evaluationId
+                        id = evaluationId,
                     )
                 } returns mockEvaluation
 
@@ -628,7 +624,7 @@ class ReviewServiceTest {
 
                 every {
                     evaluationRepository.find(
-                        id = evaluationId
+                        id = evaluationId,
                     )
                 } returns mockEvaluation
 
@@ -668,7 +664,7 @@ class ReviewServiceTest {
 
                 every {
                     evaluationRepository.find(
-                        id = evaluationId
+                        id = evaluationId,
                     )
                 } returns mockEvaluation
 
@@ -766,7 +762,7 @@ class ReviewServiceTest {
 
                 every {
                     evaluationRepository.find(
-                        id = evaluationId
+                        id = evaluationId,
                     )
                 } returns mockEvaluation
 
@@ -845,7 +841,7 @@ class ReviewServiceTest {
 
                 every {
                     evaluationRepository.find(
-                        id = invalidEvaluationUUID
+                        id = invalidEvaluationUUID,
                     )
                 } returns null
 
@@ -884,7 +880,7 @@ class ReviewServiceTest {
 
                 every {
                     evaluationRepository.find(
-                        id = evaluationId
+                        id = evaluationId,
                     )
                 } returns mockEvaluation
 
@@ -971,7 +967,7 @@ class ReviewServiceTest {
 
                 every {
                     evaluationRepository.find(
-                        id = evaluationId
+                        id = evaluationId,
                     )
                 } returns mockEvaluation
 
@@ -1075,7 +1071,7 @@ class ReviewServiceTest {
 
                 every {
                     evaluationRepository.find(
-                        id = evaluationId
+                        id = evaluationId,
                     )
                 } returns mockEvaluation
 
@@ -1196,7 +1192,7 @@ class ReviewServiceTest {
 
                 every {
                     evaluationRepository.find(
-                        id = evaluationId
+                        id = evaluationId,
                     )
                 } returns mockEvaluation
 
@@ -1248,7 +1244,7 @@ class ReviewServiceTest {
 
                 every {
                     evaluationRepository.find(
-                        id = evaluationId
+                        id = evaluationId,
                     )
                 } returns mockEvaluation
 

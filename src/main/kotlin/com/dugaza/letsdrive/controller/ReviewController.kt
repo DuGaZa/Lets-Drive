@@ -69,10 +69,11 @@ class ReviewController(
         @RequestBody @Valid request: ModifyReviewRequest,
         @AuthenticationPrincipal user: CustomOAuth2User,
     ): ResponseEntity<ReviewResponse> {
-        val modifiedReview = reviewService.modifyReview(
-            request = request,
-            user = user,
-        )
+        val modifiedReview =
+            reviewService.modifyReview(
+                request = request,
+                user = user,
+            )
         val resultList =
             evaluationService.getEvaluationResultListByReviewId(
                 userId = user.userId,

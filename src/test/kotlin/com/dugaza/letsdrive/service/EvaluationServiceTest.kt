@@ -392,7 +392,7 @@ class EvaluationServiceTest {
             // Given
             every {
                 evaluationRepository.find(
-                    id = evaluationId
+                    id = evaluationId,
                 )
             } returns mockEvaluation
 
@@ -410,7 +410,7 @@ class EvaluationServiceTest {
             val invalidUUID = UUID.randomUUID()
             every {
                 evaluationRepository.find(
-                    id = invalidUUID
+                    id = invalidUUID,
                 )
             } returns null
 
@@ -669,7 +669,7 @@ class EvaluationServiceTest {
             val invalidUUID = UUID.randomUUID()
             every {
                 evaluationRepository.find(
-                    id = invalidUUID
+                    id = invalidUUID,
                 )
             } returns null
 
@@ -693,7 +693,7 @@ class EvaluationServiceTest {
             val duplicateQuestion = "DUP_QUESTION"
             every {
                 evaluationRepository.find(
-                    id = evaluationId
+                    id = evaluationId,
                 )
             } returns mockEvaluation
 
@@ -724,7 +724,7 @@ class EvaluationServiceTest {
             val evaluationQuestion = "NEW_EVALUATION_QUESTION"
             every {
                 evaluationRepository.find(
-                    id = evaluationId
+                    id = evaluationId,
                 )
             } returns mockEvaluation
 

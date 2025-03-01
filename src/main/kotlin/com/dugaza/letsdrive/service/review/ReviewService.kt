@@ -16,7 +16,6 @@ import com.dugaza.letsdrive.service.course.CourseService
 import com.dugaza.letsdrive.service.evaluation.EvaluationService
 import com.dugaza.letsdrive.service.file.FileService
 import com.dugaza.letsdrive.service.user.UserService
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -63,7 +62,10 @@ class ReviewService(
      * 모든 데이터베이스 작업이 하나의 트랜잭션 내에서 실행됩니다.
      */
     @Transactional
-    fun createReview(request: ReviewCreateRequest, userId: UUID): Review {
+    fun createReview(
+        request: ReviewCreateRequest,
+        userId: UUID,
+    ): Review {
         val targetType = TargetType.valueOf(request.targetType)
         val user = userService.getUserById(userId)
         val evaluation = evaluationService.getEvaluationById(request.evaluationId)
@@ -213,7 +215,7 @@ class ReviewService(
         checkExistsReview(reviewId)
         checkReviewPermission(
             reviewId = reviewId,
-            user = user
+            user = user,
         )
         // 1. evaluationResult 삭제
         evaluationService.deleteEvaluationResultByReviewId(reviewId)
@@ -386,7 +388,7 @@ class ReviewService(
 
     fun checkReviewPermission(
         reviewId: UUID,
-        user: CustomOAuth2User
+        user: CustomOAuth2User,
     ) {
         val review = this.getReviewById(reviewId)
         if (review.user.id != user.userId && !user.hasRole(Role.ADMIN)) {
