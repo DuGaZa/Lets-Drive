@@ -1,0 +1,102 @@
+package com.dugaza.letsdrive.controller
+
+import com.dugaza.letsdrive.dto.review.GetReviewListRequest
+import com.dugaza.letsdrive.dto.review.ModifyReviewRequest
+import com.dugaza.letsdrive.dto.review.ReviewCreateRequest
+import com.dugaza.letsdrive.dto.review.ReviewResponse
+import com.dugaza.letsdrive.entity.user.CustomOAuth2User
+import com.dugaza.letsdrive.extensions.userId
+import com.dugaza.letsdrive.service.evaluation.EvaluationService
+import com.dugaza.letsdrive.service.review.ReviewService
+import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
+
+@RestController
+@RequestMapping("/api/reviews")
+class ReviewController(
+    private val reviewService: ReviewService,
+    private val evaluationService: EvaluationService,
+) {
+    @PostMapping
+    fun registrationReview(
+        @RequestBody @Valid request: ReviewCreateRequest,
+        @AuthenticationPrincipal user: CustomOAuth2User,
+    ): ResponseEntity<ReviewResponse> {
+        val createdReview = reviewService.createReview(request, user.userId)
+        val resultList =
+            evaluationService.getEvaluationResultListByReviewId(
+                userId = user.userId,
+                reviewId = createdReview.id!!,
+            )
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(
+                ReviewResponse.of(
+                    review = createdReview,
+                    evaluationResultList = resultList,
+                ),
+            )
+    }
+
+    @GetMapping
+    fun getReviewList(
+        @RequestBody @Valid request: GetReviewListRequest,
+    ): ResponseEntity<List<ReviewResponse>> {
+        return ResponseEntity.ok(
+            reviewService.getReviewList(request).map {
+                val resultList =
+                    evaluationService.getEvaluationResultListByReviewId(
+                        userId = it.user.id!!,
+                        reviewId = it.id!!,
+                    )
+                ReviewResponse.of(it, resultList)
+            },
+        )
+    }
+
+    @PatchMapping
+    fun modifyReview(
+        @RequestBody @Valid request: ModifyReviewRequest,
+        @AuthenticationPrincipal user: CustomOAuth2User,
+    ): ResponseEntity<ReviewResponse> {
+        val modifiedReview =
+            reviewService.modifyReview(
+                request = request,
+                user = user,
+            )
+        val resultList =
+            evaluationService.getEvaluationResultListByReviewId(
+                userId = user.userId,
+                reviewId = modifiedReview.id!!,
+            )
+        return ResponseEntity.ok(
+            ReviewResponse.of(
+                review = modifiedReview,
+                evaluationResultList = resultList,
+            ),
+        )
+    }
+
+    @DeleteMapping("/{reviewId}")
+    fun deleteReview(
+        @PathVariable reviewId: UUID,
+        @AuthenticationPrincipal user: CustomOAuth2User,
+    ): ResponseEntity<Unit> {
+        reviewService.deleteReview(
+            user = user,
+            reviewId = reviewId,
+        )
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+    }
+}
