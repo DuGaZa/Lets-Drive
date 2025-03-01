@@ -20,16 +20,23 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.kotlin.reflect)
+    implementation(libs.ognl)
+
     implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlin.reflect)
+
     implementation(libs.jackson.module.kotlin)
+
     implementation(libs.spring.boot.starter.web)
-    implementation(libs.spring.boot.starter.actuator)
+    implementation(libs.spring.boot.starter.mail)
     implementation(libs.spring.boot.starter.data.jpa)
-//    implementation(libs.spring.boot.starter.security)
+    implementation(libs.spring.boot.starter.actuator)
+    implementation(libs.spring.boot.starter.thymeleaf)
+    implementation(libs.spring.boot.starter.data.redis)
     implementation(libs.spring.boot.starter.validation)
-//    implementation(libs.spring.boot.starter.oauth2.client)
-//    implementation(libs.spring.boot.starter.oauth2.resource.server)
+    implementation(libs.spring.boot.starter.oauth2.client)
+    implementation(libs.spring.boot.starter.oauth2.resource.server)
+
     implementation(libs.thumbnailator)
 
     implementation(variantOf(libs.querydsl.jpa) { classifier("jakarta") })
@@ -44,6 +51,9 @@ dependencies {
     testImplementation(libs.junit.jupiter.api)
     testImplementation(libs.junit.jupiter.engine)
     testImplementation(libs.assertj.core)
+    testImplementation(libs.testcontainers)
+    testImplementation(libs.testcontainers.mysql)
+    testImplementation(libs.testcontainers.junit.jupiter)
 }
 
 allOpen {

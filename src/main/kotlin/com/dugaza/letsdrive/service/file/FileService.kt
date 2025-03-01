@@ -1,4 +1,4 @@
-package com.dugaza.letsdrive.service
+package com.dugaza.letsdrive.service.file
 
 import com.dugaza.letsdrive.config.FileProperties
 import com.dugaza.letsdrive.entity.file.FileDetail
@@ -7,6 +7,7 @@ import com.dugaza.letsdrive.exception.BusinessException
 import com.dugaza.letsdrive.exception.ErrorCode
 import com.dugaza.letsdrive.repository.file.FileDetailRepository
 import com.dugaza.letsdrive.repository.file.FileMasterRepository
+import com.dugaza.letsdrive.service.user.UserService
 import net.coobird.thumbnailator.Thumbnails
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -25,18 +26,18 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.writeBytes
 
 @Service
-@Transactional(readOnly = true)
 class FileService(
     private val fileDetailRepository: FileDetailRepository,
     private val fileMasterRepository: FileMasterRepository,
     private val userService: UserService,
-    private val fileProperties: FileProperties,
 ) {
+    private val fileProperties: FileProperties = FileProperties()
     private val maxSize = fileProperties.maxSize
     private val imageExt = fileProperties.imageExtensionSet()
     private val uncompressedExt = fileProperties.uncompressedExtensionSet()
     private val allowedExt = imageExt + fileProperties.allowedExtensionSet()
     private val uploadRoot: Path = Path.of(fileProperties.uploadRoot).createDirectories()
+    private val defaultImageDetailId = fileProperties.defaultImageDetailId
 
     /**
      * 여러 파일 업로드
@@ -94,6 +95,25 @@ class FileService(
             }
         }
         return fileBytes
+    }
+
+    /**
+     * 기본 프로필 이미지 파일 생성
+     * @param userId 사용자 UUID
+     * @return 생성된 FileMaster 엔티티
+     */
+    @Transactional
+    fun getDefaultImage(userId: UUID): FileMaster {
+        val user = userService.getUserById(userId)
+        val existingDetail =
+            fileDetailRepository.findById(defaultImageDetailId)
+                .orElseThrow { BusinessException(ErrorCode.NOT_FOUND_FILE_DETAIL) }
+        val fileMaster = fileMasterRepository.save(FileMaster(user))
+
+        val detail = createDuplicateFileDetail(fileMaster, existingDetail, existingDetail.originalName)
+        fileDetailRepository.save(detail)
+
+        return fileMaster
     }
 
     /**

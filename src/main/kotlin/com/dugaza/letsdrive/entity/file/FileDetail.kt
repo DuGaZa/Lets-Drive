@@ -2,8 +2,10 @@ package com.dugaza.letsdrive.entity.file
 
 import com.dugaza.letsdrive.entity.base.BaseEntity
 import jakarta.persistence.Column
+import jakarta.persistence.ConstraintMode
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
+import jakarta.persistence.ForeignKey
 import jakarta.persistence.Index
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
@@ -19,7 +21,7 @@ import jakarta.persistence.Table
 )
 class FileDetail(
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "file_master_id", nullable = false)
+    @JoinColumn(name = "file_master_id", nullable = false, foreignKey = ForeignKey(ConstraintMode.NO_CONSTRAINT))
     val fileMaster: FileMaster,
     @Column(nullable = false)
     val originalName: String,

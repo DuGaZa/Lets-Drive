@@ -1,4 +1,4 @@
-package com.dugaza.letsdrive.service
+package com.dugaza.letsdrive.service.course
 
 import com.dugaza.letsdrive.entity.course.Course
 import com.dugaza.letsdrive.exception.BusinessException

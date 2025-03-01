@@ -4,7 +4,7 @@ import com.dugaza.letsdrive.exception.ErrorCode
 
 class ValidationTestVo(
     @field:CustomValidator.NotNull(ErrorCode.DEFAULT_NOT_NULL_MESSAGE)
-    private val notNull: String?,
+    private val notNull: Any?,
     @field:CustomValidator.NotBlank(ErrorCode.DEFAULT_NOT_BLANK_MESSAGE)
     private val notBlank: String,
     @field:CustomValidator.Size(1, 10, ErrorCode.DEFAULT_SIZE_MESSAGE)

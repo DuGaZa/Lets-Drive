@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>소셜 로그인</title>
+  <!-- 부트스트랩 등 적용 가능 -->
+</head>
+<body>
+<h1>로그인</h1>
+<hr/>
+<p>아래 소셜 계정으로 로그인하세요:</p>
+
+<div>
+  <!--
+      Spring Security가 기본 제공하는
+      /oauth2/authorization/{registrationId} 경로 호출
+      예: /oauth2/authorization/google
+  -->
+  <a href="/oauth2/authorization/google">구글 로그인</a>
+</div>
+<div>
+  <a href="/oauth2/authorization/naver">네이버 로그인</a>
+</div>
+<div>
+  <a href="/oauth2/authorization/kakao">카카오 로그인</a>
+</div>
+
+<hr/>
+<p>이미 가입했는데, 소셜이 아닌 일반 로그인 (ID/PW) 사용 시 이곳에서 처리할 수도 있습니다.</p>
+<!-- 만약 폼 로그인을 함께 쓰고 싶다면 (예: ID/PW)
+     .formLogin() 설정 및 /login POST 처리 로직 필요 -->
+</body>
+</html>

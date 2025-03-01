@@ -5,10 +5,24 @@ import com.dugaza.letsdrive.exception.ErrorCode
 import com.dugaza.letsdrive.logger
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
+import org.hibernate.validator.internal.engine.constraintvalidation.ConstraintValidatorContextImpl
 import kotlin.properties.Delegates
 
 class CustomValidatorEmbodiment {
-    class NotNullValidator : ConstraintValidator<CustomValidator.NotNull, String> {
+    companion object {
+        fun getAnnotatedFieldName(p1: ConstraintValidatorContext): String {
+            val fieldName =
+                if (p1 is ConstraintValidatorContextImpl) {
+                    p1.constraintViolationCreationContexts[0].path.leafNode.name.toString()
+                } else {
+                    ""
+                }
+            println("FieldName: $fieldName")
+            return fieldName
+        }
+    }
+
+    class NotNullValidator : ConstraintValidator<CustomValidator.NotNull, Any> {
         private val log = logger()
 
         private lateinit var errorCode: ErrorCode
@@ -19,7 +33,7 @@ class CustomValidatorEmbodiment {
         }
 
         override fun isValid(
-            p0: String?,
+            p0: Any?,
             p1: ConstraintValidatorContext?,
         ): Boolean {
             log.debug("Not null validation, p0: {}", p0)
@@ -62,15 +76,16 @@ class CustomValidatorEmbodiment {
 
         override fun isValid(
             p0: String?,
-            p1: ConstraintValidatorContext?,
+            p1: ConstraintValidatorContext,
         ): Boolean {
             log.debug("Size validation, p0: {}, min: {}, max: {}", p0, min, max)
-            p0.takeIf { it != null && it.length in min..max } ?: throw BusinessException(errorCode)
+            p0.takeIf { it != null && it.length in min..max }
+                ?: throw BusinessException(errorCode, getAnnotatedFieldName(p1), min, max)
             return true
         }
     }
 
-    class MinValidator : ConstraintValidator<CustomValidator.Min, Int> {
+    class MinValidator : ConstraintValidator<CustomValidator.Min, Number> {
         private val log = logger()
 
         private lateinit var errorCode: ErrorCode
@@ -83,16 +98,18 @@ class CustomValidatorEmbodiment {
         }
 
         override fun isValid(
-            p0: Int?,
-            p1: ConstraintValidatorContext?,
+            p0: Number?,
+            p1: ConstraintValidatorContext,
         ): Boolean {
             log.debug("Min validation, p0: {}, value: {}", p0, value)
-            p0.takeIf { it != null && it.toLong() >= value } ?: throw BusinessException(errorCode)
+            if (p0 == null) throw BusinessException(errorCode, getAnnotatedFieldName(p1), value)
+            p0.toDouble().takeIf { it >= value }
+                ?: throw BusinessException(errorCode, getAnnotatedFieldName(p1), value)
             return true
         }
     }
 
-    class MaxValidator : ConstraintValidator<CustomValidator.Max, Int> {
+    class MaxValidator : ConstraintValidator<CustomValidator.Max, Number> {
         private val log = logger()
 
         private lateinit var errorCode: ErrorCode
@@ -105,16 +122,18 @@ class CustomValidatorEmbodiment {
         }
 
         override fun isValid(
-            p0: Int?,
-            p1: ConstraintValidatorContext?,
+            p0: Number?,
+            p1: ConstraintValidatorContext,
         ): Boolean {
             log.debug("Max validation, p0: {}, value: {}", p0, value)
-            p0.takeIf { it != null && it.toLong() <= value } ?: throw BusinessException(errorCode)
+            if (p0 == null) throw BusinessException(errorCode, getAnnotatedFieldName(p1), value)
+            p0.toDouble().takeIf { it <= value }
+                ?: throw BusinessException(errorCode, getAnnotatedFieldName(p1), value)
             return true
         }
     }
 
-    class RangeValidator : ConstraintValidator<CustomValidator.Range, Int> {
+    class RangeValidator : ConstraintValidator<CustomValidator.Range, Number> {
         private val log = logger()
 
         private lateinit var errorCode: ErrorCode
@@ -129,11 +148,13 @@ class CustomValidatorEmbodiment {
         }
 
         override fun isValid(
-            p0: Int?,
-            p1: ConstraintValidatorContext?,
+            p0: Number?,
+            p1: ConstraintValidatorContext,
         ): Boolean {
             log.debug("Range validation, p0: {}, from: {}, to: {}", p0, from, to)
-            p0.takeIf { it != null && it in from..to } ?: throw BusinessException(errorCode)
+            if (p0 == null) throw BusinessException(errorCode, getAnnotatedFieldName(p1), from, to)
+            p0.toDouble().takeIf { it in from.toDouble()..to.toDouble() }
+                ?: throw BusinessException(errorCode, getAnnotatedFieldName(p1), from, to)
             return true
         }
     }

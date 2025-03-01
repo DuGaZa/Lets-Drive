@@ -13,6 +13,7 @@ import com.dugaza.letsdrive.repository.evaluation.EvaluationAnswerRepository
 import com.dugaza.letsdrive.repository.evaluation.EvaluationQuestionRepository
 import com.dugaza.letsdrive.repository.evaluation.EvaluationRepository
 import com.dugaza.letsdrive.repository.evaluation.EvaluationResultRepository
+import com.dugaza.letsdrive.service.evaluation.EvaluationService
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -99,7 +100,6 @@ class EvaluationServiceTest {
                 every { provider } returns AuthProvider.GOOGLE
                 every { providerId } returns userProviderId
                 every { nickname } returns "TEST_USER_NICKNAME"
-                every { phoneNumber } returns "01012341234"
             }
 
         mockReview =
@@ -391,8 +391,10 @@ class EvaluationServiceTest {
         fun `find evaluation by valid id should return evaluation`() {
             // Given
             every {
-                evaluationRepository.findById(evaluationId)
-            } returns Optional.of(mockEvaluation)
+                evaluationRepository.find(
+                    id = evaluationId,
+                )
+            } returns mockEvaluation
 
             // When
             val result = evaluationService.getEvaluationById(evaluationId)
@@ -407,8 +409,10 @@ class EvaluationServiceTest {
             // Given
             val invalidUUID = UUID.randomUUID()
             every {
-                evaluationRepository.findById(invalidUUID)
-            } returns Optional.empty()
+                evaluationRepository.find(
+                    id = invalidUUID,
+                )
+            } returns null
 
             // When
             val exception =
@@ -664,8 +668,10 @@ class EvaluationServiceTest {
             // Given
             val invalidUUID = UUID.randomUUID()
             every {
-                evaluationRepository.findById(invalidUUID)
-            } returns Optional.empty()
+                evaluationRepository.find(
+                    id = invalidUUID,
+                )
+            } returns null
 
             // When
             val exception =
@@ -686,8 +692,10 @@ class EvaluationServiceTest {
             // Given
             val duplicateQuestion = "DUP_QUESTION"
             every {
-                evaluationRepository.findById(evaluationId)
-            } returns Optional.of(mockEvaluation)
+                evaluationRepository.find(
+                    id = evaluationId,
+                )
+            } returns mockEvaluation
 
             every {
                 evaluationQuestionRepository.exists(
@@ -715,8 +723,10 @@ class EvaluationServiceTest {
             // Given
             val evaluationQuestion = "NEW_EVALUATION_QUESTION"
             every {
-                evaluationRepository.findById(evaluationId)
-            } returns Optional.of(mockEvaluation)
+                evaluationRepository.find(
+                    id = evaluationId,
+                )
+            } returns mockEvaluation
 
             every {
                 evaluationQuestionRepository.exists(

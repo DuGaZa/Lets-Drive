@@ -12,29 +12,10 @@ jobs:
 
     runs-on: ubuntu-22.04
 
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root1234
-          MYSQL_DATABASE: testdb
-          MYSQL_USER: testuser
-          MYSQL_PASSWORD: 1234
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping --silent"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
-
     env:
+      LANG: ko_KR.UTF-8
+      LC_ALL: ko_KR.UTF-8
       SPRING_PROFILES_ACTIVE: test
-      DB_URL: localhost
-      DB_PORT: 3306
-      DB_NAME: testdb
-      DB_USER: testuser
-      DB_PASS: 1234
 
     steps:
       - name: Checkout repository
@@ -56,19 +37,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Wait for MySQL to be ready
-        run: |
-          for i in {1..30}; do
-            nc -z localhost 3306 && echo "MySQL is up" && exit 0
-            echo "Waiting for MySQL..."
-            sleep 2
-          done
-          echo "MySQL did not start in time" && exit 1
-
       # flyway 도입 ?
-      - name: Conditional Clean
-        if: contains(github.event.head_commit.message, 'force clean')
-        run: ./gradlew clean
 
       - name: Run ktlint
         run: ./gradlew ktlintCheck
