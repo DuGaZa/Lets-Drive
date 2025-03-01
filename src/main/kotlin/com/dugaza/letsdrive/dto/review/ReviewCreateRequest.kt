@@ -16,12 +16,12 @@ class ReviewCreateRequest(
         allowNull = false,
         ignoreCase = false,
     )
-    val targetType: TargetType,
+    val targetType: String,
     @field:CustomValidator.NotNull(message = "evaluationResultList는 필수 입력값입니다.")
     val evaluationResultList: List<UUID>,
     @field:CustomValidator.NotNull(message = "fileMasterId는 필수 입력값입니다.")
     var fileMasterId: UUID,
-    @field:CustomValidator.NotBlank(message = "score는 필수 입력값입니다.")
+    @field:CustomValidator.NotNull(message = "score는 필수 입력값입니다.")
 //    @field:DecimalMin(
 //        value = "0.5",
 //        message = "score는 최소 0.5 이상이어야 합니다.",

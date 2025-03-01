@@ -6,7 +6,7 @@ import com.dugaza.letsdrive.validator.ValidEnum
 import java.util.UUID
 
 class GetReviewListRequest(
-    @field:CustomValidator.NotBlank(message = "targetId는 필수 입력값입니다.")
+    @field:CustomValidator.NotNull(message = "targetId는 필수 입력값입니다.")
     val targetId: UUID,
     @field:ValidEnum(
         enumClass = TargetType::class,
@@ -14,5 +14,5 @@ class GetReviewListRequest(
         allowNull = false,
         ignoreCase = false,
     )
-    val targetType: TargetType,
+    val targetType: String,
 )

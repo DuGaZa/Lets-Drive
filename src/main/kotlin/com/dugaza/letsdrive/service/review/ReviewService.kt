@@ -64,6 +64,7 @@ class ReviewService(
      */
     @Transactional
     fun createReview(request: ReviewCreateRequest, userId: UUID): Review {
+        val targetType = TargetType.valueOf(request.targetType)
         val user = userService.getUserById(userId)
         val evaluation = evaluationService.getEvaluationById(request.evaluationId)
         val fileMaster = fileService.getFileMaster(request.fileMasterId)
@@ -73,7 +74,7 @@ class ReviewService(
         )
         checkExistsTarget(
             targetId = request.targetId,
-            targetType = request.targetType,
+            targetType = targetType,
         )
 
         request.evaluationResultList.forEach {
@@ -228,12 +229,13 @@ class ReviewService(
      *  - 지원하지 않는 TargetType인 경우 (when 표현식이 exhaustive하지 않은 경우)
      */
     fun getReviewList(request: GetReviewListRequest): List<Review> {
+        val targetType = TargetType.valueOf(request.targetType)
         checkExistsTarget(
             targetId = request.targetId,
-            targetType = request.targetType,
+            targetType = targetType,
         )
 
-        return when (request.targetType) {
+        return when (targetType) {
             TargetType.COURSE -> reviewRepository.findAllByTargetId(request.targetId)
         }
     }

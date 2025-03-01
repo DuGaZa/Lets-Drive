@@ -4,11 +4,11 @@ import com.dugaza.letsdrive.validator.CustomValidator
 import java.util.UUID
 
 class ModifyReviewRequest(
-    @field:CustomValidator.NotBlank(message = "reviewId는 필수 입력값입니다.")
+    @field:CustomValidator.NotNull(message = "reviewId는 필수 입력값입니다.")
     val reviewId: UUID,
-    @field:CustomValidator.NotBlank(message = "evaluationResultList는 필수 입력값입니다.")
+    @field:CustomValidator.NotNull(message = "evaluationResultList는 필수 입력값입니다.")
     val evaluationResultList: List<UUID>,
-    @field:CustomValidator.NotBlank(message = "score는 필수 입력값입니다.")
+    @field:CustomValidator.NotNull(message = "score는 필수 입력값입니다.")
 //    @field:DecimalMin(
 //        value = "0.5",
 //        message = "score는 최소 0.5 이상이어야 합니다.",
