@@ -281,7 +281,7 @@ class ReviewServiceTest {
             ReviewCreateRequest(
                 targetId = courseId,
                 evaluationId = evaluationId,
-                targetType = TargetType.COURSE,
+                targetType = "COURSE",
                 evaluationResultList =
                     arrayOf(
                         courseEvaluationQuestion2Answer1Id,
@@ -1274,7 +1274,7 @@ class ReviewServiceTest {
             val mockGetReviewListRequest =
                 mockk<GetReviewListRequest> {
                     every { targetId } returns courseId
-                    every { targetType } returns TargetType.COURSE
+                    every { targetType } returns "COURSE"
                 }
 
             every {
