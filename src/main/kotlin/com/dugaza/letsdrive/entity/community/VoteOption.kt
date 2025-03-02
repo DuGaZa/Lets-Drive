@@ -10,6 +10,7 @@ import jakarta.persistence.Index
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
+import org.hibernate.annotations.SQLDelete
 
 @Entity
 @Table(
@@ -18,6 +19,7 @@ import jakarta.persistence.Table
         Index(name = "idx_community_vote_option_vote_id", columnList = "vote_id"),
     ],
 )
+@SQLDelete(sql = "UPDATE community_vote_option SET deleted_at = NOW() WHERE id = ?")
 class VoteOption(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vote_id", nullable = false, foreignKey = ForeignKey(ConstraintMode.NO_CONSTRAINT))

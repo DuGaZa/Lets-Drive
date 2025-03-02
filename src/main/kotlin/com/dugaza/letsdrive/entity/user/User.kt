@@ -15,6 +15,7 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
+import org.hibernate.annotations.SQLDelete
 import java.time.LocalDateTime
 
 @Entity
@@ -24,6 +25,7 @@ import java.time.LocalDateTime
         UniqueConstraint(columnNames = ["provider", "provider_id"]),
     ],
 )
+@SQLDelete(sql = "UPDATE user SET deleted_at = NOW() WHERE id = ?")
 class User(
     @Column(nullable = true, unique = true)
     var email: String? = null,

@@ -10,8 +10,12 @@ import jakarta.persistence.FetchType
 import jakarta.persistence.ForeignKey
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.Table
+import org.hibernate.annotations.SQLDelete
 
 @Entity
+@Table(name = "user_role")
+@SQLDelete(sql = "UPDATE user_role SET deleted_at = NOW() WHERE id = ?")
 class UserRole(
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

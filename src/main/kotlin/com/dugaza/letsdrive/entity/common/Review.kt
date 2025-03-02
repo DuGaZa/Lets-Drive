@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
+import org.hibernate.annotations.SQLDelete
 import java.util.UUID
 
 @Entity
@@ -23,6 +24,7 @@ import java.util.UUID
         Index(name = "idx_common_review_target_id", columnList = "target_id"),
     ],
 )
+@SQLDelete(sql = "UPDATE common_review SET deleted_at = NOW() WHERE id = ?")
 class Review(
     @Column(nullable = false)
     val targetId: UUID,

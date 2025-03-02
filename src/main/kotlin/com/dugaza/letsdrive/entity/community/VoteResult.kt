@@ -9,9 +9,11 @@ import jakarta.persistence.ForeignKey
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
+import org.hibernate.annotations.SQLDelete
 
 @Entity
 @Table(name = "community_vote_result")
+@SQLDelete(sql = "UPDATE community_vote_result SET deleted_at = NOW() WHERE id = ?")
 class VoteResult(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "option_id", nullable = false, foreignKey = ForeignKey(ConstraintMode.NO_CONSTRAINT))
