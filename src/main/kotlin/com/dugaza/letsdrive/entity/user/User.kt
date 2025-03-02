@@ -15,8 +15,8 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
-import java.time.LocalDateTime
 import org.hibernate.annotations.SQLDelete
+import java.time.LocalDateTime
 
 @Entity
 @Table(

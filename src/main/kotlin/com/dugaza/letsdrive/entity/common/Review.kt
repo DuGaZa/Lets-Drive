@@ -14,8 +14,8 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
-import java.util.UUID
 import org.hibernate.annotations.SQLDelete
+import java.util.UUID
 
 @Entity
 @Table(
