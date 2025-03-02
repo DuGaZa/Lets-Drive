@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import java.util.UUID
+import org.hibernate.annotations.SQLDelete
 
 @Entity
 @Table(
@@ -20,6 +21,7 @@ import java.util.UUID
         Index(name = "idx_common_like_target_id", columnList = "target_id"),
     ],
 )
+@SQLDelete(sql = "UPDATE common_like SET deleted_at = NOW() WHERE id = ?")
 class Like(
     @Column(nullable = false)
     val targetId: UUID,

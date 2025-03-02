@@ -16,7 +16,6 @@ import java.util.UUID
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener::class)
-@SQLDelete(sql = "UPDATE ? SET deleted_at = NOW() WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL")
 abstract class BaseEntity {
     @Id

@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
+import org.hibernate.annotations.SQLDelete
 
 @Entity
 @Table(
@@ -23,6 +24,7 @@ import jakarta.persistence.Table
         Index(name = "idx_community_board_user_id", columnList = "user_id"),
     ],
 )
+@SQLDelete(sql = "UPDATE community_board SET deleted_at = NOW() WHERE id = ?")
 class Board(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, foreignKey = ForeignKey(ConstraintMode.NO_CONSTRAINT))
