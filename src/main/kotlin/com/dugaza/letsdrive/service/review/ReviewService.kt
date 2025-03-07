@@ -226,7 +226,8 @@ class ReviewService(
     /**
      * 특정 대상(타겟)에 대한 리뷰 목록을 조회
      *
-     * @param request 리뷰 목록 조회 요청 DTO (GetReviewListDto)
+     * @param targetId 리뷰를 조회 할 타겟의 UUID
+     * @param targetType 조회 할 타겟의 Domain
      * @return 조회된 리뷰 목록 (List<Review>)
      * @throws BusinessException 다음 경우에 발생:
      *  - 대상(타겟)이 존재하지 않는 경우 (
@@ -234,15 +235,17 @@ class ReviewService(
      *  )
      *  - 지원하지 않는 TargetType인 경우 (when 표현식이 exhaustive하지 않은 경우)
      */
-    fun getReviewList(request: GetReviewListRequest): List<Review> {
-        val targetType = TargetType.valueOf(request.targetType)
+    fun getReviewList(
+        targetId: UUID,
+        targetType: TargetType,
+    ): List<Review> {
         checkExistsTarget(
-            targetId = request.targetId,
+            targetId = targetId,
             targetType = targetType,
         )
 
         return when (targetType) {
-            TargetType.COURSE -> reviewRepository.findAllByTargetId(request.targetId)
+            TargetType.COURSE -> reviewRepository.findAllByTargetId(targetId)
         }
     }
 

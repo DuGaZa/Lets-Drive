@@ -6,6 +6,7 @@ import com.dugaza.letsdrive.dto.review.ReviewCreateRequest
 import com.dugaza.letsdrive.dto.review.ReviewResponse
 import com.dugaza.letsdrive.entity.user.CustomOAuth2User
 import com.dugaza.letsdrive.extensions.userId
+import com.dugaza.letsdrive.service.TargetType
 import com.dugaza.letsdrive.service.evaluation.EvaluationService
 import com.dugaza.letsdrive.service.review.ReviewService
 import jakarta.validation.Valid
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
@@ -53,12 +55,16 @@ class ReviewController(
 
     @GetMapping
     fun getReviewList(
-        @RequestBody
-        @Valid
-        request: GetReviewListRequest,
+        @RequestParam("targetId")
+        targetId: UUID,
+        @RequestParam("targetType")
+        targetType: TargetType,
     ): ResponseEntity<List<ReviewResponse>> {
         return ResponseEntity.ok(
-            reviewService.getReviewList(request).map {
+            reviewService.getReviewList(
+                targetId = targetId,
+                targetType = targetType,
+            ).map {
                 val resultList =
                     evaluationService.getEvaluationResultListByReviewId(
                         userId = it.user.id!!,
