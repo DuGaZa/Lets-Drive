@@ -1270,12 +1270,6 @@ class ReviewServiceTest {
         @DisplayName("유효한 타겟 ID, TYPE 을 이용하여 리뷰 리스트 조회 테스트 성공")
         fun `should successfully retrieve review list with valid target ID and type`() {
             // Given
-            val mockGetReviewListRequest =
-                mockk<GetReviewListRequest> {
-                    every { targetId } returns courseId
-                    every { targetType } returns "COURSE"
-                }
-
             every {
                 courseRepository.existsById(courseId)
             } returns true
@@ -1292,7 +1286,10 @@ class ReviewServiceTest {
             // When
             val result =
                 assertDoesNotThrow<List<Review>> {
-                    reviewService.getReviewList(mockGetReviewListRequest)
+                    reviewService.getReviewList(
+                        targetId = courseId,
+                        targetType = TargetType.COURSE
+                    )
                 }
 
             // Then
