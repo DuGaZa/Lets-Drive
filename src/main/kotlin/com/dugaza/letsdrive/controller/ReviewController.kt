@@ -29,7 +29,7 @@ class ReviewController(
     private val evaluationService: EvaluationService,
 ) {
     @PostMapping
-    fun registrationReview(
+    fun registerReview(
         @RequestBody @Valid request: ReviewCreateRequest,
         @AuthenticationPrincipal user: CustomOAuth2User,
     ): ResponseEntity<ReviewResponse> {
