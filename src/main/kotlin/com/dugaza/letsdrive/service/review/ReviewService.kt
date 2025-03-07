@@ -1,6 +1,5 @@
 package com.dugaza.letsdrive.service.review
 
-import com.dugaza.letsdrive.dto.review.GetReviewListRequest
 import com.dugaza.letsdrive.dto.review.ModifyReviewRequest
 import com.dugaza.letsdrive.dto.review.ReviewCreateRequest
 import com.dugaza.letsdrive.entity.common.Review

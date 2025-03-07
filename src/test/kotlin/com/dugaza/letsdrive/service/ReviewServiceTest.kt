@@ -1,7 +1,6 @@
 package com.dugaza.letsdrive.service
 
 import com.dugaza.letsdrive.config.FileProperties
-import com.dugaza.letsdrive.dto.review.GetReviewListRequest
 import com.dugaza.letsdrive.dto.review.ReviewCreateRequest
 import com.dugaza.letsdrive.entity.common.Review
 import com.dugaza.letsdrive.entity.common.evaluation.Evaluation

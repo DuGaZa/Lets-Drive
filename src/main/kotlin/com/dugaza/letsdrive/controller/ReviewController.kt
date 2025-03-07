@@ -1,6 +1,5 @@
 package com.dugaza.letsdrive.controller
 
-import com.dugaza.letsdrive.dto.review.GetReviewListRequest
 import com.dugaza.letsdrive.dto.review.ModifyReviewRequest
 import com.dugaza.letsdrive.dto.review.ReviewCreateRequest
 import com.dugaza.letsdrive.dto.review.ReviewResponse
