@@ -13,8 +13,6 @@ class ReviewCreateRequest(
     @field:ValidEnum(
         enumClass = TargetType::class,
         message = "Types are only available for Course.",
-        allowNull = false,
-        ignoreCase = false,
     )
     val targetType: String,
     @field:CustomValidator.NotNull(message = "evaluationResultList는 필수 입력값입니다.")
