@@ -37,7 +37,16 @@ class ReviewController(
         @AuthenticationPrincipal
         user: CustomOAuth2User,
     ): ResponseEntity<ReviewResponse> {
-        val createdReview = reviewService.createReview(request, user.userId)
+        val createdReview = reviewService.createReview(
+            targetId = request.targetId,
+            targetType = request.targetType,
+            evaluationId = request.evaluationId,
+            evaluationResultList = request.evaluationResultList,
+            fileMasterId = request.fileMasterId,
+            score = request.score,
+            content = request.content,
+            userId = user.userId,
+        )
         val resultList =
             evaluationService.getEvaluationResultListByReviewId(
                 userId = user.userId,

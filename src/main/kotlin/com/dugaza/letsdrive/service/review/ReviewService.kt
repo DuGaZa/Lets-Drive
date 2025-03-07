@@ -31,7 +31,14 @@ class ReviewService(
     /**
      * 새로운 Review를 생성하고 저장합니다.
      *
-     * @param request Review 생성에 필요한 정보를 담고 있는 DTO (ReviewCreateRequest)
+     * @param targetId 리뷰를 등록할 타겟의 UUID
+     * @param targetType 리뷰를 등록할 타겟의 Domain
+     * @param evaluationId 평가 타입의 UUID
+     * @param evaluationResultList 평가 한 항목의 UUID 리스트 (EvaluationAnswer UUID)
+     * @param fileMasterId FileMaster UUID
+     * @param score 리뷰에 등록할 평가 점수
+     * @param content 리뷰에 등록할 리뷰 내용
+     * @param userId 리뷰를 등록할 User의 UUID
      * @return 저장된 Review Entity
      *
      * 이 함수는 다음과 같은 단계로 Review를 생성합니다:
@@ -48,10 +55,10 @@ class ReviewService(
      *  - 존재하지 않는 대상(target)
      *  - 유효하지 않은 평가 질문
      *
-     * @see ReviewCreateRequest
      * @see UserService.getUserById
      * @see EvaluationService.getEvaluationById
      * @see FileService.getFileMaster
+     * @see TargetType
      * @see checkValidScore
      * @see checkExistsTarget
      * @see checkValidEvaluationQuestionByAnswerId
@@ -62,23 +69,31 @@ class ReviewService(
      */
     @Transactional
     fun createReview(
-        request: ReviewCreateRequest,
+        targetId: UUID,
+        targetType: TargetType,
+        evaluationId: UUID,
+        evaluationResultList: List<UUID>,
+        // TODO: 이미지를 등록한 경우 에만 fileMaster를 생성할 것인지?
+        //  아니면 전부 생성할 것인지?
+        //  조건부 생성일 경우 Nullable한 인자로 변경
+        fileMasterId: UUID,
+        score: Double,
+        content: String,
         userId: UUID,
     ): Review {
-        val targetType = TargetType.valueOf(request.targetType)
         val user = userService.getUserById(userId)
-        val evaluation = evaluationService.getEvaluationById(request.evaluationId)
-        val fileMaster = fileService.getFileMaster(request.fileMasterId)
+        val evaluation = evaluationService.getEvaluationById(evaluationId)
+        val fileMaster = fileService.getFileMaster(fileMasterId)
 
         checkValidScore(
-            score = request.score,
+            score = score,
         )
         checkExistsTarget(
-            targetId = request.targetId,
+            targetId = targetId,
             targetType = targetType,
         )
 
-        request.evaluationResultList.forEach {
+        evaluationResultList.forEach {
             checkValidEvaluationQuestionByAnswerId(
                 evaluation = evaluation,
                 answerId = it,
@@ -88,19 +103,17 @@ class ReviewService(
         val review =
             reviewRepository.save(
                 Review(
-                    targetId = request.targetId,
+                    targetId = targetId,
                     user = user,
                     evaluation = evaluation,
-                    score = request.score,
-                    content = request.content,
+                    score = score,
+                    content = content,
                     isDisplayed = true,
                     file = fileMaster,
                 ),
             )
 
-        request.evaluationResultList
-            .stream()
-            .forEach {
+        evaluationResultList.forEach {
                 evaluationService.createEvaluationResult(
                     user = user,
                     review = review,

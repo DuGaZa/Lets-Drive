@@ -2,7 +2,6 @@ package com.dugaza.letsdrive.dto.review
 
 import com.dugaza.letsdrive.service.TargetType
 import com.dugaza.letsdrive.validator.CustomValidator
-import com.dugaza.letsdrive.validator.ValidEnum
 import java.util.UUID
 
 class ReviewCreateRequest(
@@ -10,11 +9,8 @@ class ReviewCreateRequest(
     val targetId: UUID,
     @field:CustomValidator.NotNull(message = "evaluationId은 필수 입력값입니다.")
     val evaluationId: UUID,
-    @field:ValidEnum(
-        enumClass = TargetType::class,
-        message = "타겟 타입은 Course만 가능합니다.",
-    )
-    val targetType: String,
+    @field:CustomValidator.NotNull(message = "TargetType은 필수 입력값입니다.")
+    val targetType: TargetType,
     @field:CustomValidator.NotNull(message = "evaluationResultList는 필수 입력값입니다.")
     val evaluationResultList: List<UUID>,
     @field:CustomValidator.NotNull(message = "fileMasterId는 필수 입력값입니다.")

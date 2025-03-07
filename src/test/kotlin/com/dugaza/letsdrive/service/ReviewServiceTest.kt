@@ -12,6 +12,7 @@ import com.dugaza.letsdrive.entity.user.AuthProvider
 import com.dugaza.letsdrive.entity.user.User
 import com.dugaza.letsdrive.exception.BusinessException
 import com.dugaza.letsdrive.exception.ErrorCode
+import com.dugaza.letsdrive.extensions.userId
 import com.dugaza.letsdrive.repository.course.CourseRepository
 import com.dugaza.letsdrive.repository.evaluation.EvaluationAnswerRepository
 import com.dugaza.letsdrive.repository.evaluation.EvaluationQuestionRepository
@@ -280,7 +281,7 @@ class ReviewServiceTest {
             ReviewCreateRequest(
                 targetId = courseId,
                 evaluationId = evaluationId,
-                targetType = "COURSE",
+                targetType = TargetType.COURSE,
                 evaluationResultList =
                     arrayOf(
                         courseEvaluationQuestion2Answer1Id,
@@ -598,7 +599,16 @@ class ReviewServiceTest {
                 // When
                 val result =
                     assertDoesNotThrow<Review> {
-                        reviewService.createReview(mockCourseReviewCreateRequest, mockUser.id!!)
+                        reviewService.createReview(
+                            targetId = mockCourseReviewCreateRequest.targetId,
+                            targetType = mockCourseReviewCreateRequest.targetType,
+                            evaluationId = mockCourseReviewCreateRequest.evaluationId,
+                            evaluationResultList = mockCourseReviewCreateRequest.evaluationResultList,
+                            fileMasterId = mockCourseReviewCreateRequest.fileMasterId,
+                            score = mockCourseReviewCreateRequest.score,
+                            content = mockCourseReviewCreateRequest.content,
+                            userId = mockUser.id!!
+                        )
                     }
 
                 // Then
@@ -642,7 +652,16 @@ class ReviewServiceTest {
                 // When
                 val exception =
                     assertThrows<BusinessException> {
-                        reviewService.createReview(dtoSpy, mockUser.id!!)
+                        reviewService.createReview(
+                            targetId = dtoSpy.targetId,
+                            targetType = dtoSpy.targetType,
+                            evaluationId = dtoSpy.evaluationId,
+                            evaluationResultList = dtoSpy.evaluationResultList,
+                            fileMasterId = dtoSpy.fileMasterId,
+                            score = dtoSpy.score,
+                            content = dtoSpy.content,
+                            userId = mockUser.id!!,
+                        )
                     }
 
                 // Then
@@ -717,7 +736,16 @@ class ReviewServiceTest {
                 // When
                 val result =
                     assertDoesNotThrow<Review> {
-                        reviewService.createReview(mockCourseReviewCreateRequest, mockUser.id!!)
+                        reviewService.createReview(
+                            targetId = mockCourseReviewCreateRequest.targetId,
+                            targetType = mockCourseReviewCreateRequest.targetType,
+                            evaluationId = mockCourseReviewCreateRequest.evaluationId,
+                            evaluationResultList = mockCourseReviewCreateRequest.evaluationResultList,
+                            fileMasterId = mockCourseReviewCreateRequest.fileMasterId,
+                            score = mockCourseReviewCreateRequest.score,
+                            content = mockCourseReviewCreateRequest.content,
+                            userId = mockUser.id!!,
+                        )
                     }
 
                 // Then
@@ -740,7 +768,16 @@ class ReviewServiceTest {
                 // When
                 val exception =
                     assertThrows<BusinessException> {
-                        reviewService.createReview(dtoSpy, invalidUserUUID)
+                        reviewService.createReview(
+                            targetId = dtoSpy.targetId,
+                            targetType = dtoSpy.targetType,
+                            evaluationId = dtoSpy.evaluationId,
+                            evaluationResultList = dtoSpy.evaluationResultList,
+                            fileMasterId = dtoSpy.fileMasterId,
+                            score = dtoSpy.score,
+                            content = dtoSpy.content,
+                            userId = invalidUserUUID,
+                        )
                     }
 
                 // Then
@@ -815,7 +852,16 @@ class ReviewServiceTest {
                 // When
                 val result =
                     assertDoesNotThrow<Review> {
-                        reviewService.createReview(mockCourseReviewCreateRequest, mockUser.id!!)
+                        reviewService.createReview(
+                            targetId = mockCourseReviewCreateRequest.targetId,
+                            targetType = mockCourseReviewCreateRequest.targetType,
+                            evaluationId = mockCourseReviewCreateRequest.evaluationId,
+                            evaluationResultList = mockCourseReviewCreateRequest.evaluationResultList,
+                            fileMasterId = mockCourseReviewCreateRequest.fileMasterId,
+                            score = mockCourseReviewCreateRequest.score,
+                            content = mockCourseReviewCreateRequest.content,
+                            userId = mockUser.id!!
+                        )
                     }
 
                 // Then
@@ -847,7 +893,16 @@ class ReviewServiceTest {
                 // When
                 val exception =
                     assertThrows<BusinessException> {
-                        reviewService.createReview(dtoSpy, mockUser.id!!)
+                        reviewService.createReview(
+                            targetId = dtoSpy.targetId,
+                            targetType = dtoSpy.targetType,
+                            evaluationId = dtoSpy.evaluationId,
+                            evaluationResultList = dtoSpy.evaluationResultList,
+                            fileMasterId = dtoSpy.fileMasterId,
+                            score = dtoSpy.score,
+                            content = dtoSpy.content,
+                            userId = mockUser.id!!,
+                        )
                     }
 
                 // Then
@@ -938,7 +993,16 @@ class ReviewServiceTest {
                 // When
                 val result =
                     assertDoesNotThrow<Review> {
-                        reviewService.createReview(mockCourseReviewCreateRequest, mockUser.id!!)
+                        reviewService.createReview(
+                            targetId = mockCourseReviewCreateRequest.targetId,
+                            targetType = mockCourseReviewCreateRequest.targetType,
+                            evaluationId = mockCourseReviewCreateRequest.evaluationId,
+                            evaluationResultList = mockCourseReviewCreateRequest.evaluationResultList,
+                            fileMasterId = mockCourseReviewCreateRequest.fileMasterId,
+                            score = mockCourseReviewCreateRequest.score,
+                            content = mockCourseReviewCreateRequest.content,
+                            userId = mockUser.id!!
+                        )
                     }
 
                 // Then
@@ -1046,7 +1110,16 @@ class ReviewServiceTest {
                 // When
                 val exception =
                     assertThrows<BusinessException> {
-                        reviewService.createReview(spyDto, mockUser.id!!)
+                        reviewService.createReview(
+                            targetId = spyDto.targetId,
+                            targetType = spyDto.targetType,
+                            evaluationId = spyDto.evaluationId,
+                            evaluationResultList = spyDto.evaluationResultList,
+                            fileMasterId = spyDto.fileMasterId,
+                            score = spyDto.score,
+                            content = spyDto.content,
+                            userId = mockUser.id!!,
+                        )
                     }
 
                 // Then
@@ -1151,7 +1224,16 @@ class ReviewServiceTest {
                 // When
                 val exception =
                     assertThrows<BusinessException> {
-                        reviewService.createReview(spyDto, mockUser.id!!)
+                        reviewService.createReview(
+                            targetId = spyDto.targetId,
+                            targetType = spyDto.targetType,
+                            evaluationId = spyDto.evaluationId,
+                            evaluationResultList = spyDto.evaluationResultList,
+                            fileMasterId = spyDto.fileMasterId,
+                            score = spyDto.score,
+                            content = spyDto.content,
+                            userId = mockUser.id!!,
+                        )
                     }
 
                 // Then
@@ -1215,7 +1297,16 @@ class ReviewServiceTest {
                 // When
                 val exception =
                     assertThrows<BusinessException> {
-                        reviewService.createReview(spyDto, mockUser.id!!)
+                        reviewService.createReview(
+                            targetId = spyDto.targetId,
+                            targetType = spyDto.targetType,
+                            evaluationId = spyDto.evaluationId,
+                            evaluationResultList = spyDto.evaluationResultList,
+                            fileMasterId = spyDto.fileMasterId,
+                            score = spyDto.score,
+                            content = spyDto.content,
+                            userId = mockUser.id!!,
+                        )
                     }
 
                 // Then
@@ -1254,7 +1345,16 @@ class ReviewServiceTest {
                 // When
                 val exception =
                     assertThrows<BusinessException> {
-                        reviewService.createReview(spyDto, mockUser.id!!)
+                        reviewService.createReview(
+                            targetId = spyDto.targetId,
+                            targetType = spyDto.targetType,
+                            evaluationId = spyDto.evaluationId,
+                            evaluationResultList = spyDto.evaluationResultList,
+                            fileMasterId = spyDto.fileMasterId,
+                            score = spyDto.score,
+                            content = spyDto.content,
+                            userId = mockUser.id!!,
+                        )
                     }
 
                 // Then
