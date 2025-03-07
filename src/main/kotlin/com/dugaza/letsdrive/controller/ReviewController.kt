@@ -30,8 +30,11 @@ class ReviewController(
 ) {
     @PostMapping
     fun registerReview(
-        @RequestBody @Valid request: ReviewCreateRequest,
-        @AuthenticationPrincipal user: CustomOAuth2User,
+        @RequestBody
+        @Valid
+        request: ReviewCreateRequest,
+        @AuthenticationPrincipal
+        user: CustomOAuth2User,
     ): ResponseEntity<ReviewResponse> {
         val createdReview = reviewService.createReview(request, user.userId)
         val resultList =
@@ -50,7 +53,9 @@ class ReviewController(
 
     @GetMapping
     fun getReviewList(
-        @RequestBody @Valid request: GetReviewListRequest,
+        @RequestBody
+        @Valid
+        request: GetReviewListRequest,
     ): ResponseEntity<List<ReviewResponse>> {
         return ResponseEntity.ok(
             reviewService.getReviewList(request).map {
@@ -66,8 +71,11 @@ class ReviewController(
 
     @PatchMapping
     fun modifyReview(
-        @RequestBody @Valid request: ModifyReviewRequest,
-        @AuthenticationPrincipal user: CustomOAuth2User,
+        @RequestBody
+        @Valid
+        request: ModifyReviewRequest,
+        @AuthenticationPrincipal
+        user: CustomOAuth2User,
     ): ResponseEntity<ReviewResponse> {
         val modifiedReview =
             reviewService.modifyReview(
@@ -89,8 +97,10 @@ class ReviewController(
 
     @DeleteMapping("/{reviewId}")
     fun deleteReview(
-        @PathVariable reviewId: UUID,
-        @AuthenticationPrincipal user: CustomOAuth2User,
+        @PathVariable
+        reviewId: UUID,
+        @AuthenticationPrincipal
+        user: CustomOAuth2User,
     ): ResponseEntity<Unit> {
         reviewService.deleteReview(
             user = user,
