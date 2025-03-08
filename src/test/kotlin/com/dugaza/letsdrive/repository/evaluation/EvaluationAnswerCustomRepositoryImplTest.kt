@@ -100,7 +100,7 @@ class EvaluationAnswerCustomRepositoryImplTest : BaseIntegrationTest() {
     }
 
     @Nested
-    @DisplayName("exists")
+    @DisplayName("exists(): ")
     inner class Exists {
         @Test
         @DisplayName("존재 데이터 조회")
