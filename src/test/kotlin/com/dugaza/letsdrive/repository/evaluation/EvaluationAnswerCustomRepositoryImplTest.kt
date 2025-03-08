@@ -102,9 +102,10 @@ class EvaluationAnswerCustomRepositoryImplTest : BaseIntegrationTest() {
     @Nested
     @DisplayName("exists(): ")
     inner class Exists {
+        // TODO: 따로따로 조회도 해야할듯
         @Test
-        @DisplayName("존재 데이터 조회")
-        fun `exists find success`() {
+        @DisplayName("유효한 Question과 Answer를 이용해 테스트")
+        fun `exists by question and answer`() {
             // When
             val result = assertDoesNotThrow {
                 evaluationAnswerRepository.exists(
@@ -118,8 +119,8 @@ class EvaluationAnswerCustomRepositoryImplTest : BaseIntegrationTest() {
         }
 
         @Test
-        @DisplayName("없는 데이터 조회")
-        fun `exists not found`() {
+        @DisplayName("유효한 Question과 유효하지 않은 Answer를 이용해 테스트")
+        fun `exists valid question and invalid answer`() {
             // When
             val result = assertDoesNotThrow {
                 evaluationAnswerRepository.exists(
