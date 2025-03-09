@@ -27,12 +27,14 @@ class CourseService(
     }
 
     /**
-     * Evaluation Entity 존재 여부 확인 (evaluationType)
+     * Course 존재 여부 확인 (ID)
+     *
      * @param courseId Course ID
      * @exception BusinessException ErrorCode.COURSE_NOT_FOUND
      */
     fun existsCourseById(courseId: UUID) {
-        val result = courseRepository.existsById(courseId)
-        if (!result) throw BusinessException(ErrorCode.COURSE_NOT_FOUND)
+        courseRepository.exists(
+            courseId = courseId,
+        ).takeIf { it } ?: throw BusinessException(ErrorCode.COURSE_NOT_FOUND)
     }
 }
