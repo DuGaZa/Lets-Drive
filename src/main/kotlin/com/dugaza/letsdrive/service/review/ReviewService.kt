@@ -15,6 +15,7 @@ import com.dugaza.letsdrive.service.course.CourseService
 import com.dugaza.letsdrive.service.evaluation.EvaluationService
 import com.dugaza.letsdrive.service.file.FileService
 import com.dugaza.letsdrive.service.user.UserService
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -250,6 +251,7 @@ class ReviewService(
     fun getReviewList(
         targetId: UUID,
         targetType: TargetType,
+        pageable: Pageable,
     ): List<Review> {
         checkExistsTarget(
             targetId = targetId,

@@ -9,6 +9,10 @@ import com.dugaza.letsdrive.service.TargetType
 import com.dugaza.letsdrive.service.evaluation.EvaluationService
 import com.dugaza.letsdrive.service.review.ReviewService
 import jakarta.validation.Valid
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -67,7 +71,14 @@ class ReviewController(
         targetId: UUID,
         @RequestParam("targetType")
         targetType: TargetType,
-    ): ResponseEntity<List<ReviewResponse>> {
+        @PageableDefault(
+            size = 10,
+            page = 0,
+            sort = ["createdAt"],
+            direction = Sort.Direction.DESC,
+        )
+        pageable: Pageable,
+    ): ResponseEntity<Page<ReviewResponse>> {
         return ResponseEntity.ok(
             reviewService.getReviewList(
                 targetId = targetId,

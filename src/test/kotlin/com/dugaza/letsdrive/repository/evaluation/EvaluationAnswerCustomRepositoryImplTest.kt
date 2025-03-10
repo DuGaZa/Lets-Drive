@@ -102,7 +102,6 @@ class EvaluationAnswerCustomRepositoryImplTest : BaseIntegrationTest() {
     @Nested
     @DisplayName("exists(): ")
     inner class Exists {
-        // TODO: 따로따로 조회도 해야할듯
         @Test
         @DisplayName("유효한 Question과 Answer를 이용해 테스트")
         fun `exists by question and answer`() {
