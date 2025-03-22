@@ -1,7 +1,7 @@
 package com.dugaza.letsdrive.service.review
 
 import com.dugaza.letsdrive.dto.review.ModifyReviewRequest
-import com.dugaza.letsdrive.dto.review.ReviewCreateRequest
+import com.dugaza.letsdrive.dto.review.ReviewResponse
 import com.dugaza.letsdrive.entity.common.Review
 import com.dugaza.letsdrive.entity.common.evaluation.Evaluation
 import com.dugaza.letsdrive.entity.user.CustomOAuth2User
@@ -16,6 +16,7 @@ import com.dugaza.letsdrive.service.evaluation.EvaluationService
 import com.dugaza.letsdrive.service.file.FileService
 import com.dugaza.letsdrive.service.user.UserService
 import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PagedModel
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -252,14 +253,16 @@ class ReviewService(
         targetId: UUID,
         targetType: TargetType,
         pageable: Pageable,
-    ): List<Review> {
+    ): PagedModel<ReviewResponse> {
         checkExistsTarget(
             targetId = targetId,
             targetType = targetType,
         )
-
         return when (targetType) {
-            TargetType.COURSE -> reviewRepository.findAllByTargetId(targetId)
+            TargetType.COURSE -> reviewRepository.findAllByTargetIdWithPage(
+                targetId = targetId,
+                pageable = pageable
+            )
         }
     }
 
