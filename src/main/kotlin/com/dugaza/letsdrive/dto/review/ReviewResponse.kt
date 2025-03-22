@@ -2,8 +2,6 @@ package com.dugaza.letsdrive.dto.review
 
 import com.dugaza.letsdrive.dto.evaluation.EvaluationResultResponse
 import com.dugaza.letsdrive.entity.common.Review
-import com.dugaza.letsdrive.entity.common.evaluation.EvaluationResult
-import com.dugaza.letsdrive.entity.file.FileMaster
 import java.time.LocalDateTime
 import java.util.UUID
 
