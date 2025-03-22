@@ -1,13 +1,13 @@
 package com.dugaza.letsdrive.repository.review
 
-import com.dugaza.letsdrive.entity.common.Review
-import org.springframework.data.domain.Page
+import com.dugaza.letsdrive.dto.review.ReviewResponse
 import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PagedModel
 import java.util.UUID
 
 interface ReviewCustomRepository {
-    fun findAllWithPage(
-        targetId: UUID?,
+    fun findAllByTargetIdWithPage(
+        targetId: UUID,
         pageable: Pageable,
-    ): Page<Review>
+    ): PagedModel<ReviewResponse>
 }
