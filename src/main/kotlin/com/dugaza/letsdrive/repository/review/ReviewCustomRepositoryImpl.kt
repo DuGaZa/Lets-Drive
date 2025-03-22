@@ -1,49 +1,104 @@
 package com.dugaza.letsdrive.repository.review
 
+import com.dugaza.letsdrive.dto.evaluation.EvaluationAnswerResponse
+import com.dugaza.letsdrive.dto.evaluation.EvaluationQuestionResponse
+import com.dugaza.letsdrive.dto.evaluation.EvaluationResultResponse
+import com.dugaza.letsdrive.dto.review.ReviewResponse
 import com.dugaza.letsdrive.entity.common.QReview
 import com.dugaza.letsdrive.entity.common.Review
-import com.dugaza.letsdrive.repository.common.Checks
+import com.dugaza.letsdrive.entity.common.evaluation.QEvaluationAnswer
+import com.dugaza.letsdrive.entity.common.evaluation.QEvaluationQuestion
+import com.dugaza.letsdrive.entity.common.evaluation.QEvaluationResult
+import com.dugaza.letsdrive.entity.user.QUser
+import com.dugaza.letsdrive.exception.BusinessException
+import com.dugaza.letsdrive.exception.ErrorCode
 import com.querydsl.core.types.Order
 import com.querydsl.core.types.OrderSpecifier
+import com.querydsl.core.types.Projections
 import com.querydsl.core.types.dsl.Expressions
 import com.querydsl.jpa.impl.JPAQueryFactory
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.support.PageableExecutionUtils
+import org.springframework.data.web.PagedModel
+import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.reflect.KClass
 import kotlin.reflect.full.memberProperties
 
-
-// TODO: deletedAt 처리
-// TODO: pageable 테스트해보기,
-//   sort 조건 다양하게 넣어보고 제대로 값 나오는지 확인 필요
 class ReviewCustomRepositoryImpl(
     private val jpaQueryFactory: JPAQueryFactory,
 ) : ReviewCustomRepository {
-    override fun findAllWithPage(
-        targetId: UUID?,
+    override fun findAllByTargetIdWithPage(
+        targetId: UUID,
         pageable: Pageable,
-    ): Page<Review> {
-        Checks.argsIsNotNull(targetId)
-
+    ): PagedModel<ReviewResponse> {
         val review = QReview.review
-        val count = targetId?.let {
-            getCount(targetId)
-        } ?: 0L
-        val direction = pageable.sort.filter {
-            it.property == "createdAt"
-        }.first()
-            .direction
-        val reviewList = jpaQueryFactory
-            .selectFrom(review)
+        val user = QUser.user
+        val evaluationQuestion = QEvaluationQuestion.evaluationQuestion
+        val evaluationAnswer = QEvaluationAnswer.evaluationAnswer
+        val evaluationResult = QEvaluationResult.evaluationResult
+        val count = getCount(targetId)
+        val result = jpaQueryFactory
+            .select(
+                Projections.constructor(
+                    ReviewResponse::class.java,
+                    review.id,
+                    user.id,
+                    user.profileImage.id,
+                    user.nickname,
+                    Projections.list(
+                        Projections.constructor(
+                            EvaluationResultResponse::class.java,
+                            Projections.constructor(
+                                EvaluationQuestionResponse::class.java,
+                                evaluationQuestion.id,
+                                evaluationQuestion.question,
+                            ),
+                            Projections.constructor(
+                                EvaluationAnswerResponse::class.java,
+                                evaluationAnswer.id,
+                                evaluationAnswer.answer,
+                            ),
+                        ),
+                    ),
+                    review.score,
+                    review.content,
+                    review.createdAt,
+                )
+            )
+            .from(review)
+            .join(review.user, user)
+            .leftJoin(evaluationResult).on(review.id.eq(evaluationResult.review.id))
+            .join(evaluationResult.answer, evaluationAnswer)//
+            .join(evaluationAnswer.question, evaluationQuestion)
+            .where(
+                review.targetId.eq(targetId)
+                    .and(review.isDisplayed.isTrue)
+                    .and(review.deletedAt.isNull)
+            )
             .orderBy(*getOrderSpecifiers(pageable.sort).toTypedArray()) // !
             .offset(pageable.offset)
             .limit(pageable.pageSize.toLong())
             .fetch()
 
-        return PageableExecutionUtils.getPage(reviewList, pageable) { count }
+        val processedResult = result.groupBy { it.reviewId }.map {
+            (_, reviewList) ->
+            val firstReview = reviewList.first()
+            val evaluationResultList = reviewList.flatMap { it.evaluationResultList }
+            ReviewResponse(
+                reviewId = firstReview.reviewId,
+                userId = firstReview.userId,
+                profileImageId = firstReview.profileImageId,
+                nickname = firstReview.nickname,
+                evaluationResultList = evaluationResultList,
+                score = firstReview.score,
+                content = firstReview.content,
+                createdAt = firstReview.createdAt,
+            )
+        }
+
+        return PagedModel(PageableExecutionUtils.getPage(processedResult, pageable) { count })
     }
 
     private fun getCount(
@@ -64,10 +119,17 @@ class ReviewCustomRepositoryImpl(
             val direction = if (order.isAscending) Order.ASC else Order.DESC
             val propertyNames = getAllPropertyNames(Review::class)
             propertyNames.contains(order.property).takeIf { it }?.let {
-                OrderSpecifier(
-                    direction,
-                    Expressions.path(String::class.java, QReview.review, order.property)
-                )
+                when (order.property) {
+                    "createdAt" -> OrderSpecifier(
+                        direction,
+                        Expressions.path(LocalDateTime::class.java, QReview.review, order.property)
+                    )
+                    "score" -> OrderSpecifier(
+                        direction,
+                        Expressions.path(Double::class.java, QReview.review, order.property)
+                    )
+                    else -> throw BusinessException(ErrorCode.DEFAULT_VALIDATION_FAILED)
+                }
             }
         }.filterNotNull().toList()
     }
