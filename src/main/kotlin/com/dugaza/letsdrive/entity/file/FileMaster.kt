@@ -10,6 +10,7 @@ import jakarta.persistence.Index
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
+import org.hibernate.annotations.SQLDelete
 
 @Entity
 @Table(
@@ -18,6 +19,7 @@ import jakarta.persistence.Table
         Index(name = "idx_file_master_user_id", columnList = "user_id"),
     ],
 )
+@SQLDelete(sql = "UPDATE file_master SET deleted_at = NOW() WHERE id = ?")
 class FileMaster(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, foreignKey = ForeignKey(ConstraintMode.NO_CONSTRAINT))
