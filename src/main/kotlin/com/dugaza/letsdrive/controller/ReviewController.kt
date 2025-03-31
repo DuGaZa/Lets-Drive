@@ -2,7 +2,7 @@ package com.dugaza.letsdrive.controller
 
 import com.dugaza.letsdrive.dto.evaluation.EvaluationResultResponse
 import com.dugaza.letsdrive.dto.review.ModifyReviewRequest
-import com.dugaza.letsdrive.dto.review.ReviewCreateRequest
+import com.dugaza.letsdrive.vo.review.RegisterReview
 import com.dugaza.letsdrive.dto.review.ReviewResponse
 import com.dugaza.letsdrive.entity.user.CustomOAuth2User
 import com.dugaza.letsdrive.extensions.userId
@@ -38,7 +38,7 @@ class ReviewController(
     fun registerReview(
         @RequestBody
         @Valid
-        request: ReviewCreateRequest,
+        request: RegisterReview,
         @AuthenticationPrincipal
         user: CustomOAuth2User,
     ): ResponseEntity<ReviewResponse> {
