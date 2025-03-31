@@ -1,6 +1,5 @@
 package com.dugaza.letsdrive.controller
 
-import com.dugaza.letsdrive.dto.evaluation.EvaluationResultResponse
 import com.dugaza.letsdrive.dto.review.ModifyReviewRequest
 import com.dugaza.letsdrive.dto.review.ReviewResponse
 import com.dugaza.letsdrive.entity.user.CustomOAuth2User
@@ -62,13 +61,7 @@ class ReviewController(
             .body(
                 ReviewResponse.of(
                     review = createdReview,
-                    evaluationResultList =
-                        resultList.map {
-                            EvaluationResultResponse.of(
-                                it.answer.question,
-                                it.answer,
-                            )
-                        },
+                    evaluationResultList = resultList,
                     profileImageId = createdReview.user.profileImage?.id!!,
                     nickname = createdReview.user.nickname,
                 ),
@@ -123,13 +116,7 @@ class ReviewController(
         return ResponseEntity.ok(
             ReviewResponse.of(
                 review = modifiedReview,
-                evaluationResultList =
-                    resultList.map {
-                        EvaluationResultResponse.of(
-                            it.answer.question,
-                            it.answer,
-                        )
-                    },
+                evaluationResultList = resultList,
                 profileImageId = modifiedReview.user.profileImage?.id!!,
                 nickname = modifiedReview.user.nickname,
             ),

@@ -2,6 +2,7 @@ package com.dugaza.letsdrive.dto.review
 
 import com.dugaza.letsdrive.dto.evaluation.EvaluationResultResponse
 import com.dugaza.letsdrive.entity.common.Review
+import com.dugaza.letsdrive.entity.common.evaluation.EvaluationResult
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -18,7 +19,7 @@ class ReviewResponse(
     companion object {
         fun of(
             review: Review,
-            evaluationResultList: List<EvaluationResultResponse>,
+            evaluationResultList: List<EvaluationResult>,
             profileImageId: UUID,
             nickname: String,
         ): ReviewResponse {
@@ -27,7 +28,13 @@ class ReviewResponse(
                 userId = review.user.id!!,
                 profileImageId = profileImageId,
                 nickname = nickname,
-                evaluationResultList = evaluationResultList,
+                evaluationResultList =
+                    evaluationResultList.map {
+                        EvaluationResultResponse.of(
+                            it.answer.question,
+                            it.answer,
+                        )
+                    },
                 score = review.score,
                 content = review.content,
                 createdAt = review.createdAt!!,
