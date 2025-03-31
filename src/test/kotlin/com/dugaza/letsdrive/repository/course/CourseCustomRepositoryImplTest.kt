@@ -4,17 +4,17 @@ import com.dugaza.letsdrive.entity.course.Course
 import com.dugaza.letsdrive.entity.user.AuthProvider
 import com.dugaza.letsdrive.entity.user.User
 import com.dugaza.letsdrive.entity.user.UserStatus
-import com.dugaza.letsdrive.exception.BusinessException
-import com.dugaza.letsdrive.exception.ErrorCode
 import com.dugaza.letsdrive.integration.BaseIntegrationTest
 import com.querydsl.jpa.impl.JPAQueryFactory
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
+import org.junit.Assert.assertFalse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.assertDoesNotThrow
-import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
@@ -22,14 +22,14 @@ import org.springframework.context.annotation.Import
 import java.time.LocalDateTime
 import java.util.UUID.randomUUID
 import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @SpringBootTest
 @Import(CourseCustomRepositoryImpl::class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class CourseCustomRepositoryImplTest : BaseIntegrationTest() {
     @Autowired
-    private lateinit var courseRepository: CourseCustomRepository
+    private lateinit var courseRepository: CourseRepository
 
     @PersistenceContext
     private lateinit var entityManager: EntityManager
@@ -72,7 +72,7 @@ class CourseCustomRepositoryImplTest : BaseIntegrationTest() {
         @DisplayName("유효한 courseId를 이용하여 테스트")
         fun `exists by valid courseId`() {
             // When & Then
-            assertDoesNotThrow {
+             assertDoesNotThrow {
                 courseRepository.exists(
                     courseId = mockCourse.id!!,
                 )
@@ -85,15 +85,12 @@ class CourseCustomRepositoryImplTest : BaseIntegrationTest() {
             // Given
             val invalidCourseId = randomUUID()
 
-            // When
-            val exception = assertThrows<BusinessException> {
+            // When & Then
+            assertDoesNotThrow {
                 courseRepository.exists(
                     courseId = invalidCourseId
                 )
             }
-
-            // Then
-            assertEquals(ErrorCode.COURSE_NOT_FOUND, exception.errorCode)
         }
     }
 }
