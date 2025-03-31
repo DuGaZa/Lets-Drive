@@ -1,10 +1,10 @@
-package com.dugaza.letsdrive.dto.review
+package com.dugaza.letsdrive.vo.review
 
 import com.dugaza.letsdrive.service.TargetType
 import com.dugaza.letsdrive.validator.CustomValidator
 import java.util.UUID
 
-class ReviewCreateRequest(
+class RegisterReview(
     @field:CustomValidator.NotNull(message = "targetId는 필수 입력값입니다.")
     val targetId: UUID,
     @field:CustomValidator.NotNull(message = "evaluationId은 필수 입력값입니다.")
