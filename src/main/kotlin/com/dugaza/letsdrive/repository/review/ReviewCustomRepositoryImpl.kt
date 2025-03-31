@@ -39,77 +39,77 @@ class ReviewCustomRepositoryImpl(
         val evaluationAnswer = QEvaluationAnswer.evaluationAnswer
         val evaluationResult = QEvaluationResult.evaluationResult
         val count = getCount(targetId)
-        val result = jpaQueryFactory
-            .select(
-                Projections.constructor(
-                    ReviewResponse::class.java,
-                    review.id,
-                    user.id,
-                    user.profileImage.id,
-                    user.nickname,
-                    Projections.list(
-                        Projections.constructor(
-                            EvaluationResultResponse::class.java,
+        val result =
+            jpaQueryFactory
+                .select(
+                    Projections.constructor(
+                        ReviewResponse::class.java,
+                        review.id,
+                        user.id,
+                        user.profileImage.id,
+                        user.nickname,
+                        Projections.list(
                             Projections.constructor(
-                                EvaluationQuestionResponse::class.java,
-                                evaluationQuestion.id,
-                                evaluationQuestion.question,
-                            ),
-                            Projections.constructor(
-                                EvaluationAnswerResponse::class.java,
-                                evaluationAnswer.id,
-                                evaluationAnswer.answer,
+                                EvaluationResultResponse::class.java,
+                                Projections.constructor(
+                                    EvaluationQuestionResponse::class.java,
+                                    evaluationQuestion.id,
+                                    evaluationQuestion.question,
+                                ),
+                                Projections.constructor(
+                                    EvaluationAnswerResponse::class.java,
+                                    evaluationAnswer.id,
+                                    evaluationAnswer.answer,
+                                ),
                             ),
                         ),
+                        review.score,
+                        review.content,
+                        review.createdAt,
                     ),
-                    review.score,
-                    review.content,
-                    review.createdAt,
                 )
-            )
-            .from(review)
-            .join(review.user, user)
-            .leftJoin(evaluationResult).on(review.id.eq(evaluationResult.review.id))
-            .join(evaluationResult.answer, evaluationAnswer)//
-            .join(evaluationAnswer.question, evaluationQuestion)
-            .where(
-                review.targetId.eq(targetId)
-                    .and(review.isDisplayed.isTrue)
-                    .and(review.deletedAt.isNull)
-            )
-            .orderBy(*getOrderSpecifiers(pageable.sort).toTypedArray()) // !
-            .offset(pageable.offset)
-            .limit(pageable.pageSize.toLong())
-            .fetch()
+                .from(review)
+                .join(review.user, user)
+                .leftJoin(evaluationResult).on(review.id.eq(evaluationResult.review.id))
+                .join(evaluationResult.answer, evaluationAnswer) //
+                .join(evaluationAnswer.question, evaluationQuestion)
+                .where(
+                    review.targetId.eq(targetId)
+                        .and(review.isDisplayed.isTrue)
+                        .and(review.deletedAt.isNull),
+                )
+                .orderBy(*getOrderSpecifiers(pageable.sort).toTypedArray()) // !
+                .offset(pageable.offset)
+                .limit(pageable.pageSize.toLong())
+                .fetch()
 
-        val processedResult = result.groupBy { it.reviewId }.map {
-            (_, reviewList) ->
-            val firstReview = reviewList.first()
-            val evaluationResultList = reviewList.flatMap { it.evaluationResultList }
-            ReviewResponse(
-                reviewId = firstReview.reviewId,
-                userId = firstReview.userId,
-                profileImageId = firstReview.profileImageId,
-                nickname = firstReview.nickname,
-                evaluationResultList = evaluationResultList,
-                score = firstReview.score,
-                content = firstReview.content,
-                createdAt = firstReview.createdAt,
-            )
-        }
+        val processedResult =
+            result.groupBy { it.reviewId }.map {
+                    (_, reviewList) ->
+                val firstReview = reviewList.first()
+                val evaluationResultList = reviewList.flatMap { it.evaluationResultList }
+                ReviewResponse(
+                    reviewId = firstReview.reviewId,
+                    userId = firstReview.userId,
+                    profileImageId = firstReview.profileImageId,
+                    nickname = firstReview.nickname,
+                    evaluationResultList = evaluationResultList,
+                    score = firstReview.score,
+                    content = firstReview.content,
+                    createdAt = firstReview.createdAt,
+                )
+            }
 
         return PagedModel(PageableExecutionUtils.getPage(processedResult, pageable) { count })
     }
 
-    private fun getCount(
-        targetId: UUID,
-    ): Long {
+    private fun getCount(targetId: UUID): Long {
         val review = QReview.review
         return jpaQueryFactory
             .select(review.count())
             .from(review)
             .where(
-                review.targetId.eq(targetId)
+                review.targetId.eq(targetId),
             )
             .fetchOne() ?: 0L
     }
@@ -120,14 +120,16 @@ class ReviewCustomRepositoryImpl(
             val propertyNames = getAllPropertyNames(Review::class)
             propertyNames.contains(order.property).takeIf { it }?.let {
                 when (order.property) {
-                    "createdAt" -> OrderSpecifier(
-                        direction,
-                        Expressions.path(LocalDateTime::class.java, QReview.review, order.property)
-                    )
-                    "score" -> OrderSpecifier(
-                        direction,
-                        Expressions.path(Double::class.java, QReview.review, order.property)
-                    )
+                    "createdAt" ->
+                        OrderSpecifier(
+                            direction,
+                            Expressions.path(LocalDateTime::class.java, QReview.review, order.property),
+                        )
+                    "score" ->
+                        OrderSpecifier(
+                            direction,
+                            Expressions.path(Double::class.java, QReview.review, order.property),
+                        )
                     else -> throw BusinessException(ErrorCode.DEFAULT_VALIDATION_FAILED)
                 }
             }

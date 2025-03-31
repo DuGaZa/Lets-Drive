@@ -9,9 +9,7 @@ import java.util.UUID
 class CourseCustomRepositoryImpl(
     private val jpaQueryFactory: JPAQueryFactory,
 ) : CourseCustomRepository {
-    override fun exists(
-        courseId: UUID?
-    ): Boolean {
+    override fun exists(courseId: UUID?): Boolean {
         Checks.argsIsNotNull(courseId)
 
         val course = QCourse.course

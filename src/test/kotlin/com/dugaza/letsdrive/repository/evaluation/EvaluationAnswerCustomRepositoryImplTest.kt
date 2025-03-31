@@ -93,7 +93,6 @@ class EvaluationAnswerCustomRepositoryImplTest : BaseIntegrationTest() {
         }
     }
 
-
     @BeforeEach
     fun setUp() {
         jpaQueryFactory = JPAQueryFactory(entityManager)
@@ -106,12 +105,13 @@ class EvaluationAnswerCustomRepositoryImplTest : BaseIntegrationTest() {
         @DisplayName("유효한 Question과 Answer를 이용해 테스트")
         fun `exists by question and answer`() {
             // When
-            val result = assertDoesNotThrow {
-                evaluationAnswerRepository.exists(
-                    question = mockEvaluationQuestion1,
-                    answer = mockEvaluationQuestion1Answer1.answer
-                )
-            }
+            val result =
+                assertDoesNotThrow {
+                    evaluationAnswerRepository.exists(
+                        question = mockEvaluationQuestion1,
+                        answer = mockEvaluationQuestion1Answer1.answer,
+                    )
+                }
 
             // Then
             assertTrue(result)
@@ -121,12 +121,13 @@ class EvaluationAnswerCustomRepositoryImplTest : BaseIntegrationTest() {
         @DisplayName("유효한 Question과 유효하지 않은 Answer를 이용해 테스트")
         fun `exists valid question and invalid answer`() {
             // When
-            val result = assertDoesNotThrow {
-                evaluationAnswerRepository.exists(
-                    question = mockEvaluationQuestion1,
-                    answer = "INVALID_ANSWER"
-                )
-            }
+            val result =
+                assertDoesNotThrow {
+                    evaluationAnswerRepository.exists(
+                        question = mockEvaluationQuestion1,
+                        answer = "INVALID_ANSWER",
+                    )
+                }
 
             // Then
             assertFalse(result)

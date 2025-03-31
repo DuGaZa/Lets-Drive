@@ -54,9 +54,10 @@ class EvaluationCustomRepositoryImplTest : BaseIntegrationTest() {
         @DisplayName("유효한 ID 이용해서 조회")
         fun `find by id`() {
             // When
-            val findEntity = evaluationRepository.find(
-                id = evaluationId,
-            )
+            val findEntity =
+                evaluationRepository.find(
+                    id = evaluationId,
+                )
 
             // Then
             findEntity?.let {
@@ -73,9 +74,10 @@ class EvaluationCustomRepositoryImplTest : BaseIntegrationTest() {
             val invalidUUID = UUID.randomUUID()
 
             // When
-            val findEntity = evaluationRepository.find(
-                id = invalidUUID
-            )
+            val findEntity =
+                evaluationRepository.find(
+                    id = invalidUUID,
+                )
 
             // Then
             findEntity?.let {
@@ -87,9 +89,10 @@ class EvaluationCustomRepositoryImplTest : BaseIntegrationTest() {
         @DisplayName("type 만 이용해서 조회")
         fun `find by type`() {
             // When
-            val findEntity = evaluationRepository.find(
-                type = mockEvaluation.type
-            )
+            val findEntity =
+                evaluationRepository.find(
+                    type = mockEvaluation.type,
+                )
 
             // Then
             findEntity?.let {
@@ -106,9 +109,10 @@ class EvaluationCustomRepositoryImplTest : BaseIntegrationTest() {
             val invalidType = "INVALID_TYPE"
 
             // When
-            val findEntity = evaluationRepository.find(
-                type = invalidType
-            )
+            val findEntity =
+                evaluationRepository.find(
+                    type = invalidType,
+                )
 
             // Then
             findEntity?.let {
@@ -120,10 +124,11 @@ class EvaluationCustomRepositoryImplTest : BaseIntegrationTest() {
         @DisplayName("id 와 type 을 이용해서 조회")
         fun `find by id and type`() {
             // When
-            val findEntity = evaluationRepository.find(
-                id = evaluationId,
-                type = mockEvaluation.type
-            )
+            val findEntity =
+                evaluationRepository.find(
+                    id = evaluationId,
+                    type = mockEvaluation.type,
+                )
 
             // Then
             findEntity?.let {
@@ -138,10 +143,11 @@ class EvaluationCustomRepositoryImplTest : BaseIntegrationTest() {
         @DisplayName("유효하지 않은 ID와 유효한 Type을 이용하여 조회")
         fun `find by invalid id and type`() {
             // When
-            val findEntity = evaluationRepository.find(
-                id = evaluationId,
-                type = mockEvaluation.type
-            )
+            val findEntity =
+                evaluationRepository.find(
+                    id = evaluationId,
+                    type = mockEvaluation.type,
+                )
 
             // Then
             findEntity?.let {
@@ -159,10 +165,11 @@ class EvaluationCustomRepositoryImplTest : BaseIntegrationTest() {
             val invalidUUID = UUID.randomUUID()
 
             // When
-            val findEntity = evaluationRepository.find(
-                id = invalidUUID,
-                type = mockEvaluation.type
-            )
+            val findEntity =
+                evaluationRepository.find(
+                    id = invalidUUID,
+                    type = mockEvaluation.type,
+                )
 
             // Then
             findEntity?.let {
@@ -178,11 +185,12 @@ class EvaluationCustomRepositoryImplTest : BaseIntegrationTest() {
         @DisplayName("유효한 Type을 이용해 테스트")
         fun `exists by type`() {
             // When
-            val result = assertDoesNotThrow {
-                evaluationRepository.exists(
-                    type = mockEvaluation.type
-                )
-            }
+            val result =
+                assertDoesNotThrow {
+                    evaluationRepository.exists(
+                        type = mockEvaluation.type,
+                    )
+                }
 
             // Then
             assertTrue(result)
@@ -195,11 +203,12 @@ class EvaluationCustomRepositoryImplTest : BaseIntegrationTest() {
             val invalidType = "INVALID_TYPE"
 
             // When
-            val result = assertDoesNotThrow {
-                evaluationRepository.exists(
-                    type = invalidType
-                )
-            }
+            val result =
+                assertDoesNotThrow {
+                    evaluationRepository.exists(
+                        type = invalidType,
+                    )
+                }
 
             // Then
             assertFalse(result)

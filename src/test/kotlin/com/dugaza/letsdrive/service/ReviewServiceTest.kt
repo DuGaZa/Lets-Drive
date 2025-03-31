@@ -2,7 +2,6 @@ package com.dugaza.letsdrive.service
 
 import com.dugaza.letsdrive.config.FileProperties
 import com.dugaza.letsdrive.dto.review.ReviewResponse
-import com.dugaza.letsdrive.vo.review.RegisterReview
 import com.dugaza.letsdrive.entity.common.Review
 import com.dugaza.letsdrive.entity.common.evaluation.Evaluation
 import com.dugaza.letsdrive.entity.common.evaluation.EvaluationAnswer
@@ -29,6 +28,7 @@ import com.dugaza.letsdrive.service.file.FileService
 import com.dugaza.letsdrive.service.mail.MailService
 import com.dugaza.letsdrive.service.review.ReviewService
 import com.dugaza.letsdrive.service.user.UserService
+import com.dugaza.letsdrive.vo.review.RegisterReview
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -618,7 +618,7 @@ class ReviewServiceTest {
                             fileMasterId = mockCourseRegisterReview.fileMasterId,
                             score = mockCourseRegisterReview.score,
                             content = mockCourseRegisterReview.content,
-                            userId = mockUser.id!!
+                            userId = mockUser.id!!,
                         )
                     }
 
@@ -877,7 +877,7 @@ class ReviewServiceTest {
                             fileMasterId = mockCourseRegisterReview.fileMasterId,
                             score = mockCourseRegisterReview.score,
                             content = mockCourseRegisterReview.content,
-                            userId = mockUser.id!!
+                            userId = mockUser.id!!,
                         )
                     }
 
@@ -965,7 +965,7 @@ class ReviewServiceTest {
 
                 every {
                     courseRepository.exists(
-                        courseId = courseId
+                        courseId = courseId,
                     )
                 } returns true
 
@@ -1020,7 +1020,7 @@ class ReviewServiceTest {
                             fileMasterId = mockCourseRegisterReview.fileMasterId,
                             score = mockCourseRegisterReview.score,
                             content = mockCourseRegisterReview.content,
-                            userId = mockUser.id!!
+                            userId = mockUser.id!!,
                         )
                     }
 
@@ -1310,7 +1310,7 @@ class ReviewServiceTest {
 
                 every {
                     courseRepository.exists(
-                        courseId = courseId
+                        courseId = courseId,
                     )
                 } returns true
 
@@ -1406,13 +1406,19 @@ class ReviewServiceTest {
             every {
                 reviewRepository.findAllByTargetIdWithPage(
                     targetId = courseId,
-                    pageable = pageable
+                    pageable = pageable,
                 )
-            } returns PagedModel(PageImpl(List(10) {
-                mockk<ReviewResponse> {
-                    every { reviewId } returns UUID.randomUUID()
-                }
-            }, pageable, 10))
+            } returns
+                PagedModel(
+                    PageImpl(
+                        List(10) {
+                            mockk<ReviewResponse> {
+                                every { reviewId } returns UUID.randomUUID()
+                            }
+                        },
+                        pageable, 10,
+                    ),
+                )
 
             // When
             val result =

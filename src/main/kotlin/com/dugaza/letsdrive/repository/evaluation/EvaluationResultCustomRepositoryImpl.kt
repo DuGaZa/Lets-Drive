@@ -70,11 +70,12 @@ class EvaluationResultCustomRepositoryImpl(
      */
     override fun delete(reviewId: UUID) {
         val evaluationResult = QEvaluationResult.evaluationResult
-        val updatedCount = jpaQueryFactory
-            .update(evaluationResult)
-            .set(evaluationResult.deletedAt, LocalDateTime.now())
-            .where(evaluationResult.review.id.eq(reviewId))
-            .execute()
+        val updatedCount =
+            jpaQueryFactory
+                .update(evaluationResult)
+                .set(evaluationResult.deletedAt, LocalDateTime.now())
+                .where(evaluationResult.review.id.eq(reviewId))
+                .execute()
 
         // 위 쿼리에 영향을 받은 행의 수가 0일 경우 Error
         // * 존재하지 않은 Review ID일 경우 *

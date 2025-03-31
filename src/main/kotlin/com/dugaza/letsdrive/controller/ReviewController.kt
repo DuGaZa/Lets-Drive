@@ -2,13 +2,13 @@ package com.dugaza.letsdrive.controller
 
 import com.dugaza.letsdrive.dto.evaluation.EvaluationResultResponse
 import com.dugaza.letsdrive.dto.review.ModifyReviewRequest
-import com.dugaza.letsdrive.vo.review.RegisterReview
 import com.dugaza.letsdrive.dto.review.ReviewResponse
 import com.dugaza.letsdrive.entity.user.CustomOAuth2User
 import com.dugaza.letsdrive.extensions.userId
 import com.dugaza.letsdrive.service.TargetType
 import com.dugaza.letsdrive.service.evaluation.EvaluationService
 import com.dugaza.letsdrive.service.review.ReviewService
+import com.dugaza.letsdrive.vo.review.RegisterReview
 import jakarta.validation.Valid
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -42,16 +42,17 @@ class ReviewController(
         @AuthenticationPrincipal
         user: CustomOAuth2User,
     ): ResponseEntity<ReviewResponse> {
-        val createdReview = reviewService.createReview(
-            targetId = request.targetId,
-            targetType = request.targetType,
-            evaluationId = request.evaluationId,
-            evaluationResultList = request.evaluationResultList,
-            fileMasterId = request.fileMasterId,
-            score = request.score,
-            content = request.content,
-            userId = user.userId,
-        )
+        val createdReview =
+            reviewService.createReview(
+                targetId = request.targetId,
+                targetType = request.targetType,
+                evaluationId = request.evaluationId,
+                evaluationResultList = request.evaluationResultList,
+                fileMasterId = request.fileMasterId,
+                score = request.score,
+                content = request.content,
+                userId = user.userId,
+            )
         val resultList =
             evaluationService.getEvaluationResultListByReviewId(
                 userId = user.userId,
@@ -61,12 +62,13 @@ class ReviewController(
             .body(
                 ReviewResponse.of(
                     review = createdReview,
-                    evaluationResultList = resultList.map {
-                        EvaluationResultResponse.of(
-                            it.answer.question,
-                            it.answer,
-                        )
-                    },
+                    evaluationResultList =
+                        resultList.map {
+                            EvaluationResultResponse.of(
+                                it.answer.question,
+                                it.answer,
+                            )
+                        },
                     profileImageId = createdReview.user.profileImage?.id!!,
                     nickname = createdReview.user.nickname,
                 ),
@@ -96,7 +98,7 @@ class ReviewController(
                 targetId = targetId,
                 targetType = targetType,
                 pageable = pageable,
-            )
+            ),
         )
     }
 
@@ -121,12 +123,13 @@ class ReviewController(
         return ResponseEntity.ok(
             ReviewResponse.of(
                 review = modifiedReview,
-                evaluationResultList = resultList.map {
-                    EvaluationResultResponse.of(
-                        it.answer.question,
-                        it.answer,
-                    )
-                },
+                evaluationResultList =
+                    resultList.map {
+                        EvaluationResultResponse.of(
+                            it.answer.question,
+                            it.answer,
+                        )
+                    },
                 profileImageId = modifiedReview.user.profileImage?.id!!,
                 nickname = modifiedReview.user.nickname,
             ),

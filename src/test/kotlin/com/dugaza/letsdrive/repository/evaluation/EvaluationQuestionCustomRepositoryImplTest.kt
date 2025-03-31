@@ -39,7 +39,7 @@ class EvaluationQuestionCustomRepositoryImplTest : BaseIntegrationTest() {
 
     private val mockEvaluation1: Evaluation by lazy {
         Evaluation(
-            type = "TEST_EVALUATION_1"
+            type = "TEST_EVALUATION_1",
         ).apply {
             entityManager.persist(this)
             entityManager.flush()
@@ -47,7 +47,7 @@ class EvaluationQuestionCustomRepositoryImplTest : BaseIntegrationTest() {
     }
     private val mockEvaluation2: Evaluation by lazy {
         Evaluation(
-            type = "TEST_EVALUATION_2"
+            type = "TEST_EVALUATION_2",
         ).apply {
             entityManager.persist(this)
             entityManager.flush()
@@ -109,12 +109,13 @@ class EvaluationQuestionCustomRepositoryImplTest : BaseIntegrationTest() {
         @DisplayName("유효한 Evaluation과 Question을 이용해 테스트")
         fun `exists by valid evaluation and valid question`() {
             // When
-            val result = assertDoesNotThrow<Boolean> {
-                evaluationQuestionRepository.exists(
-                    evaluation = mockEvaluation1,
-                    question = mockEvaluation1Question1.question,
-                )
-            }
+            val result =
+                assertDoesNotThrow<Boolean> {
+                    evaluationQuestionRepository.exists(
+                        evaluation = mockEvaluation1,
+                        question = mockEvaluation1Question1.question,
+                    )
+                }
 
             // Then
             assertTrue(result)
@@ -127,12 +128,13 @@ class EvaluationQuestionCustomRepositoryImplTest : BaseIntegrationTest() {
             val invalidQuestion = "INVALID_QUESTION"
 
             // When
-            val result = assertDoesNotThrow<Boolean> {
-                evaluationQuestionRepository.exists(
-                    evaluation = mockEvaluation1,
-                    question = invalidQuestion,
-                )
-            }
+            val result =
+                assertDoesNotThrow<Boolean> {
+                    evaluationQuestionRepository.exists(
+                        evaluation = mockEvaluation1,
+                        question = invalidQuestion,
+                    )
+                }
 
             // Then
             assertFalse(result)
@@ -147,17 +149,19 @@ class EvaluationQuestionCustomRepositoryImplTest : BaseIntegrationTest() {
         fun `findAll by valid evaluationId`() {
             // When
             // evaluation1에 대한 Question
-            val evaluationQuestionList1 = assertDoesNotThrow {
-                evaluationQuestionRepository.findAll(
-                    evaluationId = evaluation1Id,
-                )
-            }
+            val evaluationQuestionList1 =
+                assertDoesNotThrow {
+                    evaluationQuestionRepository.findAll(
+                        evaluationId = evaluation1Id,
+                    )
+                }
             // evaluation2에 대한 Question
-            val evaluationQuestionList2 = assertDoesNotThrow {
-                evaluationQuestionRepository.findAll(
-                    evaluationId = evaluation2Id,
-                )
-            }
+            val evaluationQuestionList2 =
+                assertDoesNotThrow {
+                    evaluationQuestionRepository.findAll(
+                        evaluationId = evaluation2Id,
+                    )
+                }
 
             // Then
             assertTrue {
@@ -179,11 +183,12 @@ class EvaluationQuestionCustomRepositoryImplTest : BaseIntegrationTest() {
             val invalidUUID = UUID.randomUUID()
 
             // When
-            val result = assertDoesNotThrow {
-                evaluationQuestionRepository.findAll(
-                    evaluationId = invalidUUID,
-                )
-            }
+            val result =
+                assertDoesNotThrow {
+                    evaluationQuestionRepository.findAll(
+                        evaluationId = invalidUUID,
+                    )
+                }
 
             // Then
             assertEquals(0, result.size)

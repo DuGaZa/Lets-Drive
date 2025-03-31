@@ -64,7 +64,7 @@ class EvaluationResultCustomRepositoryImplTest : BaseIntegrationTest() {
 
     private val mockEvaluation: Evaluation by lazy {
         Evaluation(
-            type = "COURSE_EVALUATION"
+            type = "COURSE_EVALUATION",
         ).apply {
             entityManager.persist(this)
             entityManager.flush()
@@ -108,7 +108,7 @@ class EvaluationResultCustomRepositoryImplTest : BaseIntegrationTest() {
     private val mockEvaluationQuestion: EvaluationQuestion by lazy {
         EvaluationQuestion(
             evaluation = mockEvaluation,
-            question = "TEST_EVALUATION_QUESTION"
+            question = "TEST_EVALUATION_QUESTION",
         ).apply {
             entityManager.persist(this)
             entityManager.flush()
@@ -127,27 +127,29 @@ class EvaluationResultCustomRepositoryImplTest : BaseIntegrationTest() {
         @DisplayName("유효한 reviewId, 유효한 questionId, 유효한 userId를 이용하여 테스트")
         fun `exists by valid reviewId and valid questionId and valid userId`() {
             // Given
-            val evaluationAnswer = evaluationAnswerRepository.save(
-                EvaluationAnswer(
-                    question = mockEvaluationQuestion,
-                    answer = "TEST_EVALUATION_ANSWER"
+            val evaluationAnswer =
+                evaluationAnswerRepository.save(
+                    EvaluationAnswer(
+                        question = mockEvaluationQuestion,
+                        answer = "TEST_EVALUATION_ANSWER",
+                    ),
                 )
-            )
 
             evaluationResultRepository.save(
                 EvaluationResult(
                     review = mockReview,
                     answer = evaluationAnswer,
                     user = mockUser,
-                )
+                ),
             )
 
             // When
-            val exists = evaluationResultRepository.exists(
-                reviewId = mockReview.id!!,
-                questionId = mockEvaluationQuestion.id!!,
-                userId = mockUser.id!!,
-            )
+            val exists =
+                evaluationResultRepository.exists(
+                    reviewId = mockReview.id!!,
+                    questionId = mockEvaluationQuestion.id!!,
+                    userId = mockUser.id!!,
+                )
 
             // Then
             assertTrue(exists)
@@ -162,11 +164,12 @@ class EvaluationResultCustomRepositoryImplTest : BaseIntegrationTest() {
             val invalidUserId = randomUUID()
 
             // When
-            val exists = evaluationResultRepository.exists(
-                reviewId = invalidReviewId,
-                questionId = invalidQuestionId,
-                userId = invalidUserId,
-            )
+            val exists =
+                evaluationResultRepository.exists(
+                    reviewId = invalidReviewId,
+                    questionId = invalidQuestionId,
+                    userId = invalidUserId,
+                )
 
             // Then
             assertFalse(exists)
@@ -180,12 +183,13 @@ class EvaluationResultCustomRepositoryImplTest : BaseIntegrationTest() {
         @DisplayName("유효한 userId, reviewId를 이용하여 전체 조회 테스트")
         fun `findAll by valid reviewId and valid reviewId`() {
             // When
-            val evaluationResultList = assertDoesNotThrow<List<EvaluationResult>> {
-                evaluationResultRepository.findAll(
-                    userId = mockUser.id!!,
-                    reviewId = mockReview.id!!,
-                )
-            }
+            val evaluationResultList =
+                assertDoesNotThrow<List<EvaluationResult>> {
+                    evaluationResultRepository.findAll(
+                        userId = mockUser.id!!,
+                        reviewId = mockReview.id!!,
+                    )
+                }
 
             // Then
             assertTrue {
@@ -208,12 +212,13 @@ class EvaluationResultCustomRepositoryImplTest : BaseIntegrationTest() {
             val invalidReviewId = randomUUID()
 
             // When
-            val result = assertDoesNotThrow {
-                evaluationResultRepository.findAll(
-                    userId = invalidUserId,
-                    reviewId = invalidReviewId,
-                )
-            }
+            val result =
+                assertDoesNotThrow {
+                    evaluationResultRepository.findAll(
+                        userId = invalidUserId,
+                        reviewId = invalidReviewId,
+                    )
+                }
 
             // Then
             assertEquals(0, result.size)
@@ -227,29 +232,31 @@ class EvaluationResultCustomRepositoryImplTest : BaseIntegrationTest() {
         @DisplayName("유효한 userId, reviewId, questionId를 이용해 조회 테스트")
         fun `find by valid userId and reviewId and questionId`() {
             // Given
-            val evaluationAnswer = evaluationAnswerRepository.save(
-                EvaluationAnswer(
-                    question = mockEvaluationQuestion,
-                    answer = "TEST_EVALUATION_ANSWER"
+            val evaluationAnswer =
+                evaluationAnswerRepository.save(
+                    EvaluationAnswer(
+                        question = mockEvaluationQuestion,
+                        answer = "TEST_EVALUATION_ANSWER",
+                    ),
                 )
-            )
 
             evaluationResultRepository.save(
                 EvaluationResult(
                     review = mockReview,
                     answer = evaluationAnswer,
                     user = mockUser,
-                )
+                ),
             )
 
             // When
-            val findEvaluationResult = assertDoesNotThrow {
-                evaluationResultRepository.find(
-                    userId = mockUser.id!!,
-                    reviewId = mockReview.id!!,
-                    questionId = mockEvaluationQuestion.id!!,
-                )
-            }
+            val findEvaluationResult =
+                assertDoesNotThrow {
+                    evaluationResultRepository.find(
+                        userId = mockUser.id!!,
+                        reviewId = mockReview.id!!,
+                        questionId = mockEvaluationQuestion.id!!,
+                    )
+                }
 
             // Then
             findEvaluationResult?.let {
@@ -270,13 +277,14 @@ class EvaluationResultCustomRepositoryImplTest : BaseIntegrationTest() {
             val invalidQuestionId = randomUUID()
 
             // When
-            val findEvaluationResult = assertDoesNotThrow {
-                evaluationResultRepository.find(
-                    userId = invalidUserId,
-                    reviewId = invalidReviewId,
-                    questionId = invalidQuestionId,
-                )
-            }
+            val findEvaluationResult =
+                assertDoesNotThrow {
+                    evaluationResultRepository.find(
+                        userId = invalidUserId,
+                        reviewId = invalidReviewId,
+                        questionId = invalidQuestionId,
+                    )
+                }
 
             // Then
             findEvaluationResult?.let {
@@ -292,19 +300,20 @@ class EvaluationResultCustomRepositoryImplTest : BaseIntegrationTest() {
         @DisplayName("유효한 review Id를 이용해 Evaluation Result 삭제 테스트")
         fun `delete by valid reviewId`() {
             // Given
-            val evaluationAnswer = evaluationAnswerRepository.save(
-                EvaluationAnswer(
-                    question = mockEvaluationQuestion,
-                    answer = "TEST_EVALUATION_ANSWER"
+            val evaluationAnswer =
+                evaluationAnswerRepository.save(
+                    EvaluationAnswer(
+                        question = mockEvaluationQuestion,
+                        answer = "TEST_EVALUATION_ANSWER",
+                    ),
                 )
-            )
 
             evaluationResultRepository.save(
                 EvaluationResult(
                     review = mockReview,
                     answer = evaluationAnswer,
                     user = mockUser,
-                )
+                ),
             )
 
             // When & Then
@@ -322,11 +331,12 @@ class EvaluationResultCustomRepositoryImplTest : BaseIntegrationTest() {
             val invalidReviewId = randomUUID()
 
             // When
-            val exception = assertThrows<BusinessException> {
-                evaluationResultRepository.delete(
-                    reviewId = invalidReviewId,
-                )
-            }
+            val exception =
+                assertThrows<BusinessException> {
+                    evaluationResultRepository.delete(
+                        reviewId = invalidReviewId,
+                    )
+                }
 
             // Then
             assertEquals(ErrorCode.EVALUATION_RESULT_NOT_FOUND, exception.errorCode)

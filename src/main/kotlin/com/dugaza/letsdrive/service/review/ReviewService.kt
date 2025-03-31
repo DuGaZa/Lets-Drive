@@ -116,12 +116,12 @@ class ReviewService(
             )
 
         evaluationResultList.forEach {
-                evaluationService.createEvaluationResult(
-                    user = user,
-                    review = review,
-                    answerId = it,
-                )
-            }
+            evaluationService.createEvaluationResult(
+                user = user,
+                review = review,
+                answerId = it,
+            )
+        }
 
         return review
     }
@@ -259,10 +259,11 @@ class ReviewService(
             targetType = targetType,
         )
         return when (targetType) {
-            TargetType.COURSE -> reviewRepository.findAllByTargetIdWithPage(
-                targetId = targetId,
-                pageable = pageable
-            )
+            TargetType.COURSE ->
+                reviewRepository.findAllByTargetIdWithPage(
+                    targetId = targetId,
+                    pageable = pageable,
+                )
         }
     }
 
