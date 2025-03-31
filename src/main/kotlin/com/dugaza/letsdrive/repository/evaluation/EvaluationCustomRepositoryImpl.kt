@@ -2,8 +2,8 @@ package com.dugaza.letsdrive.repository.evaluation
 
 import com.dugaza.letsdrive.entity.common.evaluation.Evaluation
 import com.dugaza.letsdrive.entity.common.evaluation.QEvaluation
-import com.querydsl.core.types.dsl.BooleanExpression
-import com.querydsl.core.types.dsl.SimpleExpression
+import com.dugaza.letsdrive.repository.common.Checks
+import com.dugaza.letsdrive.repository.common.Checks.eqIfNotNull
 import com.querydsl.jpa.impl.JPAQueryFactory
 import java.util.UUID
 
@@ -14,6 +14,8 @@ class EvaluationCustomRepositoryImpl(
         id: UUID?,
         type: String?,
     ): Evaluation? {
+        Checks.argsIsNotNull(id, type)
+
         val evaluation = QEvaluation.evaluation
         return jpaQueryFactory
             .select(evaluation)
@@ -37,9 +39,5 @@ class EvaluationCustomRepositoryImpl(
                 .fetchFirst()
 
         return fetchFirst != null
-    }
-
-    private fun <T> SimpleExpression<T>.eqIfNotNull(value: T?): BooleanExpression? {
-        return if (value != null) this.eq(value) else null
     }
 }

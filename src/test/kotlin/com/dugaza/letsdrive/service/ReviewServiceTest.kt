@@ -1,8 +1,7 @@
 package com.dugaza.letsdrive.service
 
 import com.dugaza.letsdrive.config.FileProperties
-import com.dugaza.letsdrive.dto.review.GetReviewListRequest
-import com.dugaza.letsdrive.dto.review.ReviewCreateRequest
+import com.dugaza.letsdrive.dto.review.ReviewResponse
 import com.dugaza.letsdrive.entity.common.Review
 import com.dugaza.letsdrive.entity.common.evaluation.Evaluation
 import com.dugaza.letsdrive.entity.common.evaluation.EvaluationAnswer
@@ -29,6 +28,7 @@ import com.dugaza.letsdrive.service.file.FileService
 import com.dugaza.letsdrive.service.mail.MailService
 import com.dugaza.letsdrive.service.review.ReviewService
 import com.dugaza.letsdrive.service.user.UserService
+import com.dugaza.letsdrive.vo.review.RegisterReview
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -44,6 +44,10 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PagedModel
 import java.util.Optional
 import java.util.UUID
 
@@ -109,7 +113,7 @@ class ReviewServiceTest {
     private lateinit var reviewId: UUID
     private lateinit var mockEvaluation: Evaluation
     private lateinit var evaluationId: UUID
-    private lateinit var mockCourseReviewCreateRequest: ReviewCreateRequest
+    private lateinit var mockCourseRegisterReview: RegisterReview
     private lateinit var mockCourseEvaluationQuestion1: EvaluationQuestion
     private lateinit var mockCourseEvaluationQuestion1Answer1: EvaluationAnswer
     private lateinit var mockCourseEvaluationQuestion1Answer2: EvaluationAnswer
@@ -277,11 +281,11 @@ class ReviewServiceTest {
             }
         }
 
-        val realCourseReviewCreateRequest =
-            ReviewCreateRequest(
+        val realCourseRegisterReview =
+            RegisterReview(
                 targetId = courseId,
                 evaluationId = evaluationId,
-                targetType = "COURSE",
+                targetType = TargetType.COURSE,
                 evaluationResultList =
                     arrayOf(
                         courseEvaluationQuestion2Answer1Id,
@@ -291,7 +295,7 @@ class ReviewServiceTest {
                 score = reviewScore,
                 content = "TEST_CONTENT",
             )
-        mockCourseReviewCreateRequest = spyk(realCourseReviewCreateRequest)
+        mockCourseRegisterReview = spyk(realCourseRegisterReview)
 
         mockReview =
             mockk<Review> {
@@ -322,6 +326,9 @@ class ReviewServiceTest {
 
             every {
                 courseRepository.existsById(courseId)
+                courseRepository.exists(
+                    courseId = courseId,
+                )
             } returns true
 
             val courseService = CourseService(courseRepository)
@@ -345,7 +352,9 @@ class ReviewServiceTest {
             val targetType = TargetType.COURSE
 
             every {
-                courseRepository.existsById(invalidUUID)
+                courseRepository.exists(
+                    courseId = invalidUUID,
+                )
             } returns false
 
             val courseService = CourseService(courseRepository)
@@ -539,7 +548,9 @@ class ReviewServiceTest {
                 when (targetType) {
                     TargetType.COURSE ->
                         every {
-                            courseRepository.existsById(targetId)
+                            courseRepository.exists(
+                                courseId = targetId,
+                            )
                         } returns true
 
                     else -> {
@@ -564,11 +575,11 @@ class ReviewServiceTest {
                 every {
                     reviewRepository.save(
                         match {
-                            it.targetId == mockCourseReviewCreateRequest.targetId &&
+                            it.targetId == mockCourseRegisterReview.targetId &&
                                 it.user.id == mockUser.id &&
-                                it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
-                                it.score == mockCourseReviewCreateRequest.score &&
-                                it.file.id == mockCourseReviewCreateRequest.fileMasterId
+                                it.evaluation.id == mockCourseRegisterReview.evaluationId &&
+                                it.score == mockCourseRegisterReview.score &&
+                                it.file.id == mockCourseRegisterReview.fileMasterId
                         },
                     )
                 } returns mockReview
@@ -599,7 +610,16 @@ class ReviewServiceTest {
                 // When
                 val result =
                     assertDoesNotThrow<Review> {
-                        reviewService.createReview(mockCourseReviewCreateRequest, mockUser.id!!)
+                        reviewService.createReview(
+                            targetId = mockCourseRegisterReview.targetId,
+                            targetType = mockCourseRegisterReview.targetType,
+                            evaluationId = mockCourseRegisterReview.evaluationId,
+                            evaluationResultList = mockCourseRegisterReview.evaluationResultList,
+                            fileMasterId = mockCourseRegisterReview.fileMasterId,
+                            score = mockCourseRegisterReview.score,
+                            content = mockCourseRegisterReview.content,
+                            userId = mockUser.id!!,
+                        )
                     }
 
                 // Then
@@ -612,7 +632,7 @@ class ReviewServiceTest {
             fun `should throw exception when given invalid target ID`() {
                 // Given
                 val invalidCourseUUID = UUID.randomUUID()
-                val dtoSpy = spyk<ReviewCreateRequest>(mockCourseReviewCreateRequest)
+                val dtoSpy = spyk<RegisterReview>(mockCourseRegisterReview)
 
                 every {
                     dtoSpy.targetId
@@ -637,13 +657,24 @@ class ReviewServiceTest {
                 } returns Optional.empty()
 
                 every {
-                    courseRepository.existsById(invalidCourseUUID)
+                    courseRepository.exists(
+                        courseId = invalidCourseUUID,
+                    )
                 } returns false
 
                 // When
                 val exception =
                     assertThrows<BusinessException> {
-                        reviewService.createReview(dtoSpy, mockUser.id!!)
+                        reviewService.createReview(
+                            targetId = dtoSpy.targetId,
+                            targetType = dtoSpy.targetType,
+                            evaluationId = dtoSpy.evaluationId,
+                            evaluationResultList = dtoSpy.evaluationResultList,
+                            fileMasterId = dtoSpy.fileMasterId,
+                            score = dtoSpy.score,
+                            content = dtoSpy.content,
+                            userId = mockUser.id!!,
+                        )
                     }
 
                 // Then
@@ -677,17 +708,19 @@ class ReviewServiceTest {
                 } returns Optional.of(mockCourse)
 
                 every {
-                    courseRepository.existsById(courseId)
+                    courseRepository.exists(
+                        courseId = courseId,
+                    )
                 } returns true
 
                 every {
                     reviewRepository.save(
                         match {
-                            it.targetId == mockCourseReviewCreateRequest.targetId &&
+                            it.targetId == mockCourseRegisterReview.targetId &&
                                 it.user.id == mockUser.id &&
-                                it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
-                                it.score == mockCourseReviewCreateRequest.score &&
-                                it.file.id == mockCourseReviewCreateRequest.fileMasterId
+                                it.evaluation.id == mockCourseRegisterReview.evaluationId &&
+                                it.score == mockCourseRegisterReview.score &&
+                                it.file.id == mockCourseRegisterReview.fileMasterId
                         },
                     )
                 } returns mockReview
@@ -718,7 +751,16 @@ class ReviewServiceTest {
                 // When
                 val result =
                     assertDoesNotThrow<Review> {
-                        reviewService.createReview(mockCourseReviewCreateRequest, mockUser.id!!)
+                        reviewService.createReview(
+                            targetId = mockCourseRegisterReview.targetId,
+                            targetType = mockCourseRegisterReview.targetType,
+                            evaluationId = mockCourseRegisterReview.evaluationId,
+                            evaluationResultList = mockCourseRegisterReview.evaluationResultList,
+                            fileMasterId = mockCourseRegisterReview.fileMasterId,
+                            score = mockCourseRegisterReview.score,
+                            content = mockCourseRegisterReview.content,
+                            userId = mockUser.id!!,
+                        )
                     }
 
                 // Then
@@ -732,7 +774,7 @@ class ReviewServiceTest {
                 // Given
                 val invalidUserUUID = UUID.randomUUID()
 
-                val dtoSpy = spyk<ReviewCreateRequest>(mockCourseReviewCreateRequest)
+                val dtoSpy = spyk<RegisterReview>(mockCourseRegisterReview)
 
                 every {
                     userRepository.findUserById(invalidUserUUID)
@@ -741,7 +783,16 @@ class ReviewServiceTest {
                 // When
                 val exception =
                     assertThrows<BusinessException> {
-                        reviewService.createReview(dtoSpy, invalidUserUUID)
+                        reviewService.createReview(
+                            targetId = dtoSpy.targetId,
+                            targetType = dtoSpy.targetType,
+                            evaluationId = dtoSpy.evaluationId,
+                            evaluationResultList = dtoSpy.evaluationResultList,
+                            fileMasterId = dtoSpy.fileMasterId,
+                            score = dtoSpy.score,
+                            content = dtoSpy.content,
+                            userId = invalidUserUUID,
+                        )
                     }
 
                 // Then
@@ -775,17 +826,19 @@ class ReviewServiceTest {
                 } returns Optional.of(mockCourse)
 
                 every {
-                    courseRepository.existsById(courseId)
+                    courseRepository.exists(
+                        courseId = courseId,
+                    )
                 } returns true
 
                 every {
                     reviewRepository.save(
                         match {
-                            it.targetId == mockCourseReviewCreateRequest.targetId &&
+                            it.targetId == mockCourseRegisterReview.targetId &&
                                 it.user.id == mockUser.id &&
-                                it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
-                                it.score == mockCourseReviewCreateRequest.score &&
-                                it.file.id == mockCourseReviewCreateRequest.fileMasterId
+                                it.evaluation.id == mockCourseRegisterReview.evaluationId &&
+                                it.score == mockCourseRegisterReview.score &&
+                                it.file.id == mockCourseRegisterReview.fileMasterId
                         },
                     )
                 } returns mockReview
@@ -816,7 +869,16 @@ class ReviewServiceTest {
                 // When
                 val result =
                     assertDoesNotThrow<Review> {
-                        reviewService.createReview(mockCourseReviewCreateRequest, mockUser.id!!)
+                        reviewService.createReview(
+                            targetId = mockCourseRegisterReview.targetId,
+                            targetType = mockCourseRegisterReview.targetType,
+                            evaluationId = mockCourseRegisterReview.evaluationId,
+                            evaluationResultList = mockCourseRegisterReview.evaluationResultList,
+                            fileMasterId = mockCourseRegisterReview.fileMasterId,
+                            score = mockCourseRegisterReview.score,
+                            content = mockCourseRegisterReview.content,
+                            userId = mockUser.id!!,
+                        )
                     }
 
                 // Then
@@ -829,7 +891,7 @@ class ReviewServiceTest {
             fun `should throw exception when given invalid evaluation ID`() {
                 // Given
                 val invalidEvaluationUUID = UUID.randomUUID()
-                val dtoSpy = spyk<ReviewCreateRequest>(mockCourseReviewCreateRequest)
+                val dtoSpy = spyk<RegisterReview>(mockCourseRegisterReview)
 
                 every {
                     dtoSpy.evaluationId
@@ -848,7 +910,16 @@ class ReviewServiceTest {
                 // When
                 val exception =
                     assertThrows<BusinessException> {
-                        reviewService.createReview(dtoSpy, mockUser.id!!)
+                        reviewService.createReview(
+                            targetId = dtoSpy.targetId,
+                            targetType = dtoSpy.targetType,
+                            evaluationId = dtoSpy.evaluationId,
+                            evaluationResultList = dtoSpy.evaluationResultList,
+                            fileMasterId = dtoSpy.fileMasterId,
+                            score = dtoSpy.score,
+                            content = dtoSpy.content,
+                            userId = mockUser.id!!,
+                        )
                     }
 
                 // Then
@@ -863,7 +934,7 @@ class ReviewServiceTest {
             @DisplayName("유효한 평가 결과 목록을 이용하여 리뷰 생성 테스트 성공")
             fun `should create review successfully when given valid evaluation result list`() {
                 // Given
-                val spyDto = spyk<ReviewCreateRequest>(mockCourseReviewCreateRequest)
+                val spyDto = spyk<RegisterReview>(mockCourseRegisterReview)
                 val mockEvaluationResultList =
                     arrayOf(
                         courseEvaluationQuestion1Answer2Id,
@@ -893,17 +964,19 @@ class ReviewServiceTest {
                 } returns Optional.of(mockCourse)
 
                 every {
-                    courseRepository.existsById(courseId)
+                    courseRepository.exists(
+                        courseId = courseId,
+                    )
                 } returns true
 
                 every {
                     reviewRepository.save(
                         match {
-                            it.targetId == mockCourseReviewCreateRequest.targetId &&
+                            it.targetId == mockCourseRegisterReview.targetId &&
                                 it.user.id == mockUser.id &&
-                                it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
-                                it.score == mockCourseReviewCreateRequest.score &&
-                                it.file.id == mockCourseReviewCreateRequest.fileMasterId
+                                it.evaluation.id == mockCourseRegisterReview.evaluationId &&
+                                it.score == mockCourseRegisterReview.score &&
+                                it.file.id == mockCourseRegisterReview.fileMasterId
                         },
                     )
                 } returns mockReview
@@ -939,7 +1012,16 @@ class ReviewServiceTest {
                 // When
                 val result =
                     assertDoesNotThrow<Review> {
-                        reviewService.createReview(mockCourseReviewCreateRequest, mockUser.id!!)
+                        reviewService.createReview(
+                            targetId = mockCourseRegisterReview.targetId,
+                            targetType = mockCourseRegisterReview.targetType,
+                            evaluationId = mockCourseRegisterReview.evaluationId,
+                            evaluationResultList = mockCourseRegisterReview.evaluationResultList,
+                            fileMasterId = mockCourseRegisterReview.fileMasterId,
+                            score = mockCourseRegisterReview.score,
+                            content = mockCourseRegisterReview.content,
+                            userId = mockUser.id!!,
+                        )
                     }
 
                 // Then
@@ -950,7 +1032,7 @@ class ReviewServiceTest {
             @DisplayName("유효하지 않은 평가 결과 목록을 이용하여 리뷰 생성 테스트시 예외 발생 (중복 답변)")
             fun `should throw exception when evaluation result list contains duplicate answers`() {
                 // Given
-                val spyDto = spyk<ReviewCreateRequest>(mockCourseReviewCreateRequest)
+                val spyDto = spyk<RegisterReview>(mockCourseRegisterReview)
                 val invalidEvaluationResultList =
                     arrayOf(
                         courseEvaluationQuestion1Answer1Id,
@@ -980,17 +1062,19 @@ class ReviewServiceTest {
                 } returns Optional.of(mockCourse)
 
                 every {
-                    courseRepository.existsById(courseId)
+                    courseRepository.exists(
+                        courseId = courseId,
+                    )
                 } returns true
 
                 every {
                     reviewRepository.save(
                         match {
-                            it.targetId == mockCourseReviewCreateRequest.targetId &&
+                            it.targetId == mockCourseRegisterReview.targetId &&
                                 it.user.id == mockUser.id &&
-                                it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
-                                it.score == mockCourseReviewCreateRequest.score &&
-                                it.file.id == mockCourseReviewCreateRequest.fileMasterId
+                                it.evaluation.id == mockCourseRegisterReview.evaluationId &&
+                                it.score == mockCourseRegisterReview.score &&
+                                it.file.id == mockCourseRegisterReview.fileMasterId
                         },
                     )
                 } returns mockReview
@@ -1047,7 +1131,16 @@ class ReviewServiceTest {
                 // When
                 val exception =
                     assertThrows<BusinessException> {
-                        reviewService.createReview(spyDto, mockUser.id!!)
+                        reviewService.createReview(
+                            targetId = spyDto.targetId,
+                            targetType = spyDto.targetType,
+                            evaluationId = spyDto.evaluationId,
+                            evaluationResultList = spyDto.evaluationResultList,
+                            fileMasterId = spyDto.fileMasterId,
+                            score = spyDto.score,
+                            content = spyDto.content,
+                            userId = mockUser.id!!,
+                        )
                     }
 
                 // Then
@@ -1058,7 +1151,7 @@ class ReviewServiceTest {
             @DisplayName("유효하지 않은 평가 결과 목록을 이용하여 리뷰 생성 테스트시 예외 발생 (같은 질문에 두가지 답변)")
             fun `should throw exception when evaluation result list contains multiple answers for the same question`() {
                 // Given
-                val spyDto = spyk<ReviewCreateRequest>(mockCourseReviewCreateRequest)
+                val spyDto = spyk<RegisterReview>(mockCourseRegisterReview)
                 val invalidEvaluationResultList =
                     arrayOf(
                         courseEvaluationQuestion1Answer1Id,
@@ -1084,17 +1177,19 @@ class ReviewServiceTest {
                 } returns Optional.of(mockCourse)
 
                 every {
-                    courseRepository.existsById(courseId)
+                    courseRepository.exists(
+                        courseId = courseId,
+                    )
                 } returns true
 
                 every {
                     reviewRepository.save(
                         match {
-                            it.targetId == mockCourseReviewCreateRequest.targetId &&
+                            it.targetId == mockCourseRegisterReview.targetId &&
                                 it.user.id == mockUser.id &&
-                                it.evaluation.id == mockCourseReviewCreateRequest.evaluationId &&
-                                it.score == mockCourseReviewCreateRequest.score &&
-                                it.file.id == mockCourseReviewCreateRequest.fileMasterId
+                                it.evaluation.id == mockCourseRegisterReview.evaluationId &&
+                                it.score == mockCourseRegisterReview.score &&
+                                it.file.id == mockCourseRegisterReview.fileMasterId
                         },
                     )
                 } returns mockReview
@@ -1152,7 +1247,16 @@ class ReviewServiceTest {
                 // When
                 val exception =
                     assertThrows<BusinessException> {
-                        reviewService.createReview(spyDto, mockUser.id!!)
+                        reviewService.createReview(
+                            targetId = spyDto.targetId,
+                            targetType = spyDto.targetType,
+                            evaluationId = spyDto.evaluationId,
+                            evaluationResultList = spyDto.evaluationResultList,
+                            fileMasterId = spyDto.fileMasterId,
+                            score = spyDto.score,
+                            content = spyDto.content,
+                            userId = mockUser.id!!,
+                        )
                     }
 
                 // Then
@@ -1179,7 +1283,7 @@ class ReviewServiceTest {
                         every { answer } returns "INVALID_ANSWER"
                     }
                 val spyDto =
-                    spyk<ReviewCreateRequest>(mockCourseReviewCreateRequest) {
+                    spyk<RegisterReview>(mockCourseRegisterReview) {
                         every { evaluationResultList } returns
                             arrayOf(
                                 invalidEvaluationAnswer.id!!,
@@ -1205,7 +1309,9 @@ class ReviewServiceTest {
                 } returns Optional.of(mockCourse)
 
                 every {
-                    courseRepository.existsById(courseId)
+                    courseRepository.exists(
+                        courseId = courseId,
+                    )
                 } returns true
 
                 val invalidAnswerId = invalidEvaluationAnswer.id!!
@@ -1216,7 +1322,16 @@ class ReviewServiceTest {
                 // When
                 val exception =
                     assertThrows<BusinessException> {
-                        reviewService.createReview(spyDto, mockUser.id!!)
+                        reviewService.createReview(
+                            targetId = spyDto.targetId,
+                            targetType = spyDto.targetType,
+                            evaluationId = spyDto.evaluationId,
+                            evaluationResultList = spyDto.evaluationResultList,
+                            fileMasterId = spyDto.fileMasterId,
+                            score = spyDto.score,
+                            content = spyDto.content,
+                            userId = mockUser.id!!,
+                        )
                     }
 
                 // Then
@@ -1232,7 +1347,7 @@ class ReviewServiceTest {
             fun `should throw exception when given invalid file master ID`() {
                 // Given
                 val invalidFileMasterUUID = UUID.randomUUID()
-                val spyDto = spyk<ReviewCreateRequest>(mockCourseReviewCreateRequest)
+                val spyDto = spyk<RegisterReview>(mockCourseRegisterReview)
 
                 every {
                     spyDto.fileMasterId
@@ -1255,7 +1370,16 @@ class ReviewServiceTest {
                 // When
                 val exception =
                     assertThrows<BusinessException> {
-                        reviewService.createReview(spyDto, mockUser.id!!)
+                        reviewService.createReview(
+                            targetId = spyDto.targetId,
+                            targetType = spyDto.targetType,
+                            evaluationId = spyDto.evaluationId,
+                            evaluationResultList = spyDto.evaluationResultList,
+                            fileMasterId = spyDto.fileMasterId,
+                            score = spyDto.score,
+                            content = spyDto.content,
+                            userId = mockUser.id!!,
+                        )
                     }
 
                 // Then
@@ -1271,35 +1395,43 @@ class ReviewServiceTest {
         @DisplayName("유효한 타겟 ID, TYPE 을 이용하여 리뷰 리스트 조회 테스트 성공")
         fun `should successfully retrieve review list with valid target ID and type`() {
             // Given
-            val mockGetReviewListRequest =
-                mockk<GetReviewListRequest> {
-                    every { targetId } returns courseId
-                    every { targetType } returns "COURSE"
-                }
+            val pageable: Pageable = PageRequest.of(0, 10)
 
             every {
-                courseRepository.existsById(courseId)
+                courseRepository.exists(
+                    courseId = courseId,
+                )
             } returns true
 
             every {
-                reviewRepository.findAllByTargetId(courseId)
+                reviewRepository.findAllByTargetIdWithPage(
+                    targetId = courseId,
+                    pageable = pageable,
+                )
             } returns
-                List(10) {
-                    mockk<Review> {
-                        every { targetId } returns courseId
-                    }
-                }
+                PagedModel(
+                    PageImpl(
+                        List(10) {
+                            mockk<ReviewResponse> {
+                                every { reviewId } returns UUID.randomUUID()
+                            }
+                        },
+                        pageable, 10,
+                    ),
+                )
 
             // When
             val result =
-                assertDoesNotThrow<List<Review>> {
-                    reviewService.getReviewList(mockGetReviewListRequest)
+                assertDoesNotThrow<PagedModel<ReviewResponse>> {
+                    reviewService.getReviewList(
+                        targetId = courseId,
+                        targetType = TargetType.COURSE,
+                        pageable = pageable,
+                    )
                 }
 
             // Then
-            result.forEach {
-                assertEquals(courseId, it.targetId)
-            }
+            assertEquals(result.content.size, 10)
         }
     }
 }

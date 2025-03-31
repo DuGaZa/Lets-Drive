@@ -1,8 +1,7 @@
 package com.dugaza.letsdrive.service.review
 
-import com.dugaza.letsdrive.dto.review.GetReviewListRequest
 import com.dugaza.letsdrive.dto.review.ModifyReviewRequest
-import com.dugaza.letsdrive.dto.review.ReviewCreateRequest
+import com.dugaza.letsdrive.dto.review.ReviewResponse
 import com.dugaza.letsdrive.entity.common.Review
 import com.dugaza.letsdrive.entity.common.evaluation.Evaluation
 import com.dugaza.letsdrive.entity.user.CustomOAuth2User
@@ -16,6 +15,8 @@ import com.dugaza.letsdrive.service.course.CourseService
 import com.dugaza.letsdrive.service.evaluation.EvaluationService
 import com.dugaza.letsdrive.service.file.FileService
 import com.dugaza.letsdrive.service.user.UserService
+import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PagedModel
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -32,7 +33,14 @@ class ReviewService(
     /**
      * 새로운 Review를 생성하고 저장합니다.
      *
-     * @param request Review 생성에 필요한 정보를 담고 있는 DTO (ReviewCreateRequest)
+     * @param targetId 리뷰를 등록할 타겟의 UUID
+     * @param targetType 리뷰를 등록할 타겟의 Domain
+     * @param evaluationId 평가 타입의 UUID
+     * @param evaluationResultList 평가 한 항목의 UUID 리스트 (EvaluationAnswer UUID)
+     * @param fileMasterId FileMaster UUID
+     * @param score 리뷰에 등록할 평가 점수
+     * @param content 리뷰에 등록할 리뷰 내용
+     * @param userId 리뷰를 등록할 User의 UUID
      * @return 저장된 Review Entity
      *
      * 이 함수는 다음과 같은 단계로 Review를 생성합니다:
@@ -49,10 +57,10 @@ class ReviewService(
      *  - 존재하지 않는 대상(target)
      *  - 유효하지 않은 평가 질문
      *
-     * @see ReviewCreateRequest
      * @see UserService.getUserById
      * @see EvaluationService.getEvaluationById
      * @see FileService.getFileMaster
+     * @see TargetType
      * @see checkValidScore
      * @see checkExistsTarget
      * @see checkValidEvaluationQuestionByAnswerId
@@ -63,23 +71,31 @@ class ReviewService(
      */
     @Transactional
     fun createReview(
-        request: ReviewCreateRequest,
+        targetId: UUID,
+        targetType: TargetType,
+        evaluationId: UUID,
+        evaluationResultList: List<UUID>,
+        // TODO: 이미지를 등록한 경우 에만 fileMaster를 생성할 것인지?
+        //  아니면 전부 생성할 것인지?
+        //  조건부 생성일 경우 Nullable한 인자로 변경
+        fileMasterId: UUID,
+        score: Double,
+        content: String,
         userId: UUID,
     ): Review {
-        val targetType = TargetType.valueOf(request.targetType)
         val user = userService.getUserById(userId)
-        val evaluation = evaluationService.getEvaluationById(request.evaluationId)
-        val fileMaster = fileService.getFileMaster(request.fileMasterId)
+        val evaluation = evaluationService.getEvaluationById(evaluationId)
+        val fileMaster = fileService.getFileMaster(fileMasterId)
 
         checkValidScore(
-            score = request.score,
+            score = score,
         )
         checkExistsTarget(
-            targetId = request.targetId,
+            targetId = targetId,
             targetType = targetType,
         )
 
-        request.evaluationResultList.forEach {
+        evaluationResultList.forEach {
             checkValidEvaluationQuestionByAnswerId(
                 evaluation = evaluation,
                 answerId = it,
@@ -89,25 +105,23 @@ class ReviewService(
         val review =
             reviewRepository.save(
                 Review(
-                    targetId = request.targetId,
+                    targetId = targetId,
                     user = user,
                     evaluation = evaluation,
-                    score = request.score,
-                    content = request.content,
+                    score = score,
+                    content = content,
                     isDisplayed = true,
                     file = fileMaster,
                 ),
             )
 
-        request.evaluationResultList
-            .stream()
-            .forEach {
-                evaluationService.createEvaluationResult(
-                    user = user,
-                    review = review,
-                    answerId = it,
-                )
-            }
+        evaluationResultList.forEach {
+            evaluationService.createEvaluationResult(
+                user = user,
+                review = review,
+                answerId = it,
+            )
+        }
 
         return review
     }
@@ -226,7 +240,8 @@ class ReviewService(
     /**
      * 특정 대상(타겟)에 대한 리뷰 목록을 조회
      *
-     * @param request 리뷰 목록 조회 요청 DTO (GetReviewListDto)
+     * @param targetId 리뷰를 조회 할 타겟의 UUID
+     * @param targetType 조회 할 타겟의 Domain
      * @return 조회된 리뷰 목록 (List<Review>)
      * @throws BusinessException 다음 경우에 발생:
      *  - 대상(타겟)이 존재하지 않는 경우 (
@@ -234,15 +249,21 @@ class ReviewService(
      *  )
      *  - 지원하지 않는 TargetType인 경우 (when 표현식이 exhaustive하지 않은 경우)
      */
-    fun getReviewList(request: GetReviewListRequest): List<Review> {
-        val targetType = TargetType.valueOf(request.targetType)
+    fun getReviewList(
+        targetId: UUID,
+        targetType: TargetType,
+        pageable: Pageable,
+    ): PagedModel<ReviewResponse> {
         checkExistsTarget(
-            targetId = request.targetId,
+            targetId = targetId,
             targetType = targetType,
         )
-
         return when (targetType) {
-            TargetType.COURSE -> reviewRepository.findAllByTargetId(request.targetId)
+            TargetType.COURSE ->
+                reviewRepository.findAllByTargetIdWithPage(
+                    targetId = targetId,
+                    pageable = pageable,
+                )
         }
     }
 

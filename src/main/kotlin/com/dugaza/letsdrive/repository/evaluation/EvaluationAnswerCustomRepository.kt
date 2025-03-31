@@ -4,7 +4,7 @@ import com.dugaza.letsdrive.entity.common.evaluation.EvaluationQuestion
 
 interface EvaluationAnswerCustomRepository {
     fun exists(
-        question: EvaluationQuestion,
-        answer: String,
+        question: EvaluationQuestion?,
+        answer: String?,
     ): Boolean
 }

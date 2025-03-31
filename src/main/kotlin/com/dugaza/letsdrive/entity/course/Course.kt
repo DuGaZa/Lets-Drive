@@ -17,6 +17,6 @@ class Course(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, foreignKey = ForeignKey(ConstraintMode.NO_CONSTRAINT))
     val user: User,
-    @Column(name = "course_name", nullable = false)
+    @Column(nullable = false)
     val name: String,
 ) : BaseEntity()
