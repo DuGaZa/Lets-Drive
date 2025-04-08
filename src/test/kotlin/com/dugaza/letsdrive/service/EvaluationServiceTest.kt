@@ -5,6 +5,7 @@ import com.dugaza.letsdrive.entity.common.evaluation.Evaluation
 import com.dugaza.letsdrive.entity.common.evaluation.EvaluationAnswer
 import com.dugaza.letsdrive.entity.common.evaluation.EvaluationQuestion
 import com.dugaza.letsdrive.entity.common.evaluation.EvaluationResult
+import com.dugaza.letsdrive.entity.common.evaluation.EvaluationType
 import com.dugaza.letsdrive.entity.user.AuthProvider
 import com.dugaza.letsdrive.entity.user.User
 import com.dugaza.letsdrive.exception.BusinessException
@@ -59,7 +60,7 @@ class EvaluationServiceTest {
     private lateinit var mockReview: Review
     private lateinit var reviewId: UUID
 
-    private val evaluationType = "TestEvaluation Type"
+    private val evaluationType = EvaluationType.CUSTOM
     private val evaluationQuestionContent = "Test Evaluation Question"
     private val evaluationAnswerContent = "Test Evaluation Answer"
     private val userEmail = "mock@example.com"
@@ -146,7 +147,7 @@ class EvaluationServiceTest {
 
             // When & Then
             assertDoesNotThrow {
-                evaluationService.checkDuplicateType("NEW_TYPE")
+                evaluationService.checkDuplicateType(EvaluationType.MANAGER)
             }
         }
     }
@@ -365,7 +366,7 @@ class EvaluationServiceTest {
         @DisplayName("유효하지 않은 Evaluation Type으로 엔티티 조회 시 예외 발생")
         fun `find evaluation by invalid type should throw exception`() {
             // Given
-            val invalidType = "INVALID_TYPE"
+            val invalidType = EvaluationType.MANAGER
             every {
                 evaluationRepository.find(
                     type = invalidType,
@@ -770,7 +771,7 @@ class EvaluationServiceTest {
         @DisplayName("중복된 평가 타입을 이용해 평가 항목을 등록 시 예외 발생")
         fun `should throw exception when registering evaluation with duplicate type`() {
             // Given
-            val invalidType = "DUP_EVALUATION_TYPE"
+            val invalidType = EvaluationType.PEER
             every {
                 evaluationRepository.exists(
                     type = invalidType,

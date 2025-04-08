@@ -3,6 +3,7 @@ package com.dugaza.letsdrive.repository.evaluation
 import com.dugaza.letsdrive.entity.common.evaluation.Evaluation
 import com.dugaza.letsdrive.entity.common.evaluation.EvaluationAnswer
 import com.dugaza.letsdrive.entity.common.evaluation.EvaluationQuestion
+import com.dugaza.letsdrive.entity.common.evaluation.EvaluationType
 import com.dugaza.letsdrive.integration.BaseIntegrationTest
 import com.querydsl.jpa.impl.JPAQueryFactory
 import jakarta.persistence.EntityManager
@@ -32,7 +33,7 @@ class EvaluationAnswerCustomRepositoryImplTest : BaseIntegrationTest() {
 
     private val mockEvaluation: Evaluation by lazy {
         Evaluation(
-            type = "TEST_EVALUATION",
+            type = EvaluationType.CUSTOM,
         ).apply {
             entityManager.persist(this)
             entityManager.flush()

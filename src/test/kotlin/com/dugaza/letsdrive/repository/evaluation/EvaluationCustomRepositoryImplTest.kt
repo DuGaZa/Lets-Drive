@@ -1,6 +1,7 @@
 package com.dugaza.letsdrive.repository.evaluation
 
 import com.dugaza.letsdrive.entity.common.evaluation.Evaluation
+import com.dugaza.letsdrive.entity.common.evaluation.EvaluationType
 import com.dugaza.letsdrive.integration.BaseIntegrationTest
 import com.querydsl.jpa.impl.JPAQueryFactory
 import jakarta.persistence.EntityManager
@@ -16,7 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
 import java.util.UUID
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -34,7 +34,7 @@ class EvaluationCustomRepositoryImplTest : BaseIntegrationTest() {
 
     private val mockEvaluation: Evaluation by lazy {
         Evaluation(
-            type = "TEST_EVALUATION",
+            type = EvaluationType.CUSTOM,
         ).apply {
             entityManager.persist(this)
             entityManager.flush()
@@ -98,24 +98,6 @@ class EvaluationCustomRepositoryImplTest : BaseIntegrationTest() {
             findEntity?.let {
                 assertEquals(mockEvaluation.type, it.type)
             } ?: run {
-                fail()
-            }
-        }
-
-        @Test
-        @DisplayName("유효하지 않은 Type을 이용하여 조회")
-        fun `find by invalid type`() {
-            // Given
-            val invalidType = "INVALID_TYPE"
-
-            // When
-            val findEntity =
-                evaluationRepository.find(
-                    type = invalidType,
-                )
-
-            // Then
-            findEntity?.let {
                 fail()
             }
         }
@@ -194,24 +176,6 @@ class EvaluationCustomRepositoryImplTest : BaseIntegrationTest() {
 
             // Then
             assertTrue(result)
-        }
-
-        @Test
-        @DisplayName("유효하지 않은 Type을 이용해 테스트")
-        fun `exists by invalid type`() {
-            // Given
-            val invalidType = "INVALID_TYPE"
-
-            // When
-            val result =
-                assertDoesNotThrow {
-                    evaluationRepository.exists(
-                        type = invalidType,
-                    )
-                }
-
-            // Then
-            assertFalse(result)
         }
     }
 }
