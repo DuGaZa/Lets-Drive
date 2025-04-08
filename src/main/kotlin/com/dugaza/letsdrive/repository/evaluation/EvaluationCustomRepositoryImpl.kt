@@ -1,6 +1,7 @@
 package com.dugaza.letsdrive.repository.evaluation
 
 import com.dugaza.letsdrive.entity.common.evaluation.Evaluation
+import com.dugaza.letsdrive.entity.common.evaluation.EvaluationType
 import com.dugaza.letsdrive.entity.common.evaluation.QEvaluation
 import com.dugaza.letsdrive.repository.common.Checks
 import com.dugaza.letsdrive.repository.common.Checks.eqIfNotNull
@@ -12,7 +13,7 @@ class EvaluationCustomRepositoryImpl(
 ) : EvaluationCustomRepository {
     override fun find(
         id: UUID?,
-        type: String?,
+        type: EvaluationType?,
     ): Evaluation? {
         Checks.argsIsNotNull(id, type)
 
@@ -27,7 +28,7 @@ class EvaluationCustomRepositoryImpl(
             .fetchOne()
     }
 
-    override fun exists(type: String): Boolean {
+    override fun exists(type: EvaluationType): Boolean {
         val evaluation = QEvaluation.evaluation
         val fetchFirst =
             jpaQueryFactory

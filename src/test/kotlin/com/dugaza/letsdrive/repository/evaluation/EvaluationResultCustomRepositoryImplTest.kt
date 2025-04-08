@@ -5,6 +5,7 @@ import com.dugaza.letsdrive.entity.common.evaluation.Evaluation
 import com.dugaza.letsdrive.entity.common.evaluation.EvaluationAnswer
 import com.dugaza.letsdrive.entity.common.evaluation.EvaluationQuestion
 import com.dugaza.letsdrive.entity.common.evaluation.EvaluationResult
+import com.dugaza.letsdrive.entity.common.evaluation.EvaluationType
 import com.dugaza.letsdrive.entity.course.Course
 import com.dugaza.letsdrive.entity.file.FileMaster
 import com.dugaza.letsdrive.entity.user.AuthProvider
@@ -64,7 +65,7 @@ class EvaluationResultCustomRepositoryImplTest : BaseIntegrationTest() {
 
     private val mockEvaluation: Evaluation by lazy {
         Evaluation(
-            type = "COURSE_EVALUATION",
+            type = EvaluationType.CUSTOM,
         ).apply {
             entityManager.persist(this)
             entityManager.flush()

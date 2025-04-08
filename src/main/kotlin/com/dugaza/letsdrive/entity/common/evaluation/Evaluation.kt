@@ -9,5 +9,5 @@ import jakarta.persistence.Table
 @Table(name = "common_evaluation")
 class Evaluation(
     @Column(name = "evaluation_type", nullable = false)
-    val type: String,
+    val type: EvaluationType,
 ) : BaseEntity()

@@ -5,6 +5,7 @@ import com.dugaza.letsdrive.entity.common.evaluation.Evaluation
 import com.dugaza.letsdrive.entity.common.evaluation.EvaluationAnswer
 import com.dugaza.letsdrive.entity.common.evaluation.EvaluationQuestion
 import com.dugaza.letsdrive.entity.common.evaluation.EvaluationResult
+import com.dugaza.letsdrive.entity.common.evaluation.EvaluationType
 import com.dugaza.letsdrive.entity.user.User
 import com.dugaza.letsdrive.exception.BusinessException
 import com.dugaza.letsdrive.exception.ErrorCode
@@ -44,7 +45,7 @@ class EvaluationService(
      * - 이 함수는 @Transactional 어노테이션이 적용되어 있어, 모든 데이터베이스 작업이 하나의 트랜잭션 내에서 실행됩니다.
      */
     @Transactional
-    fun createEvaluation(evaluationType: String): Evaluation {
+    fun createEvaluation(evaluationType: EvaluationType): Evaluation {
         checkDuplicateType(evaluationType)
 
         return evaluationRepository.save(
@@ -241,7 +242,7 @@ class EvaluationService(
      * @return Evaluation Entity
      * @throws BusinessException ErrorCode.EVALUATION_NOT_FOUND - 평가를 찾을 수 없는 경우
      */
-    fun getEvaluationByType(evaluationType: String): Evaluation {
+    fun getEvaluationByType(evaluationType: EvaluationType): Evaluation {
         return evaluationRepository.find(
             type = evaluationType,
         ) ?: throw BusinessException(ErrorCode.EVALUATION_NOT_FOUND)
@@ -368,7 +369,7 @@ class EvaluationService(
      * @param evaluationType 평가 유형 문자열
      * @throws BusinessException ErrorCode.EVALUATION_TYPE_CONFLICT - 중복된 평가 유형이 존재하는 경우
      */
-    fun checkDuplicateType(evaluationType: String) {
+    fun checkDuplicateType(evaluationType: EvaluationType) {
         if (evaluationRepository.exists(
                 type = evaluationType,
             )

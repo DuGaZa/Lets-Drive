@@ -6,6 +6,7 @@ import com.dugaza.letsdrive.entity.common.Review
 import com.dugaza.letsdrive.entity.common.evaluation.Evaluation
 import com.dugaza.letsdrive.entity.common.evaluation.EvaluationAnswer
 import com.dugaza.letsdrive.entity.common.evaluation.EvaluationQuestion
+import com.dugaza.letsdrive.entity.common.evaluation.EvaluationType
 import com.dugaza.letsdrive.entity.course.Course
 import com.dugaza.letsdrive.entity.file.FileMaster
 import com.dugaza.letsdrive.entity.user.AuthProvider
@@ -134,7 +135,7 @@ class ReviewServiceTest {
     private lateinit var fileMasterId: UUID
 
     private var userEmail = "mock@example.com"
-    private val evaluationType = "TestEvaluation Type"
+    private val evaluationType = EvaluationType.CUSTOM
     private val reviewScore = 2.5
 
     @BeforeEach
@@ -1276,7 +1277,7 @@ class ReviewServiceTest {
                                 every { evaluation } returns
                                     mockk<Evaluation> {
                                         every { id } returns UUID.randomUUID()
-                                        every { type } returns "OTHER_TYPE"
+                                        every { type } returns EvaluationType.CUSTOM
                                     }
                                 every { question } returns "INVALID_QUESTION"
                             }
