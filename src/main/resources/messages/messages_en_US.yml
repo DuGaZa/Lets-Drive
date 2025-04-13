@@ -29,3 +29,22 @@ VALID:
 AUTH:
   001: "유효하지 않은 리프레쉬 토큰입니다."
   002: "유효하지 않은 디바이스 아이디입니다."
+  003: "Access denied. Please check your permissions and try again."
+
+EVALUATION:
+  001: "Evaluation not found."
+  002: "Evaluation answer not found."
+  003: "Evaluation type already exists."
+  004: "Evaluation question already exists."
+  005: "Evaluation question not found."
+  006: "Evaluation question already exists."
+  007: "Evaluation answer already exists."
+  008: "Invalid Evaluation answer."
+  009: "Evaluation result not found."
+
+REVIEW:
+  001: "Review not found."
+  002: "Rating must be between 0.5 and 5.0 in 0.5 increments."
+
+COURSE:
+  001: "Course not found."
